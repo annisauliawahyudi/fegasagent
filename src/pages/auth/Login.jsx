@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import {
@@ -93,7 +93,7 @@ const Login = () => {
             Sign Up
           </Button>
           <Typography className='text-center mt-10 text-sm' color='black'>
-              Copyright © 2024
+              Copyright ©2024
           </Typography>
         </form>
       </Card>
