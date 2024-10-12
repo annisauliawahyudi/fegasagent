@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 import { FaThLarge, FaUsers } from 'react-icons/fa'; // Import the icon
 import { BsUpcScan } from "react-icons/bs";
@@ -12,16 +14,20 @@ const Sidebar = () => {
         setActiveLink(index)
     }
 
-    function logout() {
-        // Remove the token from local storage
-        localStorage.removeItem("jwtToken");
+    // function logout() {
+    //     // Remove the token from local storage
+    //     localStorage.removeItem("jwtToken");
       
-        // Optionally, you can also remove the token from session storage if it's stored there
-        // sessionStorage.removeItem("jwtToken");
+    //     // Optionally, you can also remove the token from session storage if it's stored there
+    //     // sessionStorage.removeItem("jwtToken");
       
-        // Redirect to login or home page
-        window.location.href = "/";
-    }
+    //     // Redirect to login or home page
+    //     window.location.href = "/";
+    // }
+    const handleLogout = () => {
+        Cookies.remove('token');  // Hapus token dari cookies
+        window.location.href = '/'; // Redirect ke halaman login
+      };
 
     const SIDEBAR_LINKS = [
         { id: 1, path: "/home", name: "Dashboard", icon: FaThLarge },
@@ -56,7 +62,7 @@ const Sidebar = () => {
 
             {/* navigation links */}
 
-            <button type="submit" onClick={logout}> 
+            <button type="submit" onClick={handleLogout}> 
             <div className="w-full absolute bottom-5 left-0 px-4 py-2 cursor-pointer text-center">
                 <p className="flex items-center space-x-2 text-xs text-white py-3 px-5 bg-[#00AA13] rounded-md">
                 <CgLogOut/>
