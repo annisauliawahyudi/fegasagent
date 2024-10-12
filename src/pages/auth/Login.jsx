@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import {
@@ -7,11 +7,21 @@ import {
   Button,
   Typography,
 } from "@material-tailwind/react";
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState({});
+  const navigate = useNavigate();
+
+  // Redirect ke home jika user sudah login (token ada di cookies)
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (token) {
+      navigate('/home');  // Redirect jika sudah login
+    }
+  }, [navigate]);
 
   const validate = () => {
     let tempErrors = {};
@@ -36,16 +46,15 @@ const Login = () => {
       });
       const { token } = response.data;
 
-      // Save the token to cookies
-      Cookies.set('token', token, { expires: 7 }); // Cookie expires in 7 days
+      // Simpan token di cookies
+      Cookies.set('token', token, { expires: 7 });  // Token expire dalam 7 hari
 
-      // Redirect to the home page
-      window.location.href = '/home';
+      // Redirect ke halaman home
+      navigate('/home');
     } catch (error) {
       setError({ apiError: error.response.data.message });
     }
   };
-
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-cover bg-center relative px-10 lg:px-0" style={{ backgroundImage: 'url("https://asumsi.co/wp-content/uploads/2024/05/medium_13-04-2018-07-58-14-8145.jpg")' }}>
@@ -65,7 +74,7 @@ const Login = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               error={!!error.username}
-              className={`!border-blue-gray-700 focus:!border-gray-900 ${error.username ? 'border-red-500 focus:border-red-500' : ''}`}
+              className={`border border-gray-400 focus:border-gray-900 ${error.username ? 'border-red-500 focus:border-red-500' : ''}`}
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
@@ -81,7 +90,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               error={!!error.password}
-              className={`!border-blue-gray-700 focus:!border-gray-900 ${error.password ? 'border-red-500 focus:border-red-500' : ''}`}
+              className={`border border-gray-400 focus:border-gray-900 ${error.password ? 'border-red-500 focus:border-red-500' : ''}`}
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
@@ -99,6 +108,6 @@ const Login = () => {
       </Card>
     </div>
   );
-}
+};
 
 export default Login;

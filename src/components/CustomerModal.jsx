@@ -137,15 +137,6 @@ const CustomerModal = ({ isOpen, onClose, customer }) => {
               onChange={handleChange}
             />
           </div>
-          <div className="relative h-11 w-full min-w-[200px]">
-            <textarea
-              className="w-full h-full px-3 py-3 text-sm font-normal bg-transparent border rounded-md border-blue-gray-200 focus:border-gray-900 focus:outline-0"
-              placeholder="Deskripsi"
-              name="description"
-              value={formValues.description}
-              onChange={handleChange}
-            />
-          </div>
         </div>
         <div className="p-6 pt-0">
           <button
