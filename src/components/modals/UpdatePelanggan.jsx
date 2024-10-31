@@ -7,6 +7,7 @@ const UpdatePelanggan = ({ isOpen, onClose, customer }) => {
   const [formValues, setFormValues] = useState({
     name: '',
     nik: '',
+    alamat: '',
     buyerType: '',
   });
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,7 @@ const UpdatePelanggan = ({ isOpen, onClose, customer }) => {
       setFormValues({
         name: customer.nama || '',
         nik: customer.nik || '',
+        alamat: customer.alamat || '',  
         buyerType: customer.buyer_type?.id?.toString() || '', 
       });
     } else if (!isOpen) {
@@ -37,6 +39,7 @@ const UpdatePelanggan = ({ isOpen, onClose, customer }) => {
       setFormValues({
         name: '',
         nik: '',
+        alamat: '',
         buyerType: '',
       });
       setError(null); 
@@ -84,7 +87,8 @@ const UpdatePelanggan = ({ isOpen, onClose, customer }) => {
       {
         nama: formValues.name,
         nik: formValues.nik,
-        buyer_type_id: formValues.buyerType,  // Changed to buyer_type_id
+        alamat: formValues.alamat,  
+        buyer_type_id: formValues.buyerType,  
       },
       {
         headers: {
@@ -152,6 +156,15 @@ const UpdatePelanggan = ({ isOpen, onClose, customer }) => {
               placeholder="NIK"
               name="nik"
               value={formValues.nik}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="relative h-11 w-full min-w-[200px]">
+            <input
+              className="w-full h-full px-3 py-3 text-sm font-normal bg-transparent border rounded-md border-blue-gray-200 focus:border-gray-900 focus:outline-0"
+              placeholder="alamat"
+              name="alamat"
+              value={formValues.alamat}
               onChange={handleChange}
             />
           </div>

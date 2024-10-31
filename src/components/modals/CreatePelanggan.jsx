@@ -1,43 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
-import {
-  Input,
-  Option,
-  Select,
-  Button,
-  Dialog,
-  Textarea,
-  IconButton,
-  Typography,
-  DialogBody,
-  DialogHeader,
-  DialogFooter,
-} from "@material-tailwind/react";
-// import { useNavigate } from "react-router-dom";
-// import { XMarkIcon } from "@heroicons/react/24/outline";
+import { Input, Select, Button, Dialog, IconButton, Typography, DialogBody, DialogHeader, DialogFooter } from "@material-tailwind/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus } from "react-icons/fa";
 
-export function CreatePelanggan() {
+export function CreatePelanggan({ refreshTable }) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [buyerTypes, setBuyerTypes] = useState([]);
   const [formValues, setFormValues] = useState({
     nik: "",
     nama: "",
-    tmpt_tgl_lahir: "",
-    jk: "",
     alamat: "",
-    rt_rw: "",
-    kel_desa: "",
-    kecamatan: "",
-    agama: "",
-    status_perkawinan: "",
-    pekerjaan: "",
-    warga: "",
+    status: "", // Tambahkan status (buyer_type_id) ke dalam formValues
   });
-  // const navigate = useNavigate();
 
   const handleOpen = () => setOpen(!open);
 
@@ -46,178 +25,193 @@ export function CreatePelanggan() {
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddPelanggan = async () => {
-    try {
-      const token = Cookies.get("token");
-
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}api/customer`,
-        formValues,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 201) {
-        Swal.fire({
-          icon: "success",
-          title: "Your data has been saved",
-          timer: 1500,
-        }).then(() => {
-          window.location.reload();
-        });
-      } else {
-        setError("Gagal menambahkan data pelanggan.");
-      }
-    } catch (error) {
-      console.error("Error creating customer:", error);
-      setError(error.response?.data?.message || "Error creating customer");
-    }
+  const handleSelectChange = (e) => {
+    setFormValues((prev) => ({ ...prev, status: e.target.value })); // Update buyer_type_id ke dalam formValues
   };
+
+  useEffect(() => {
+    const fetchBuyerTypes = async () => {
+      try {
+        const token = Cookies.get("token");
+        setLoading(true);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/buyerType`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setBuyerTypes(response.data.data);
+      } catch (error) {
+        setError(error);
+        console.error("Error fetching buyer types:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (open) {
+      fetchBuyerTypes();
+    }
+  }, [open]);
+
+  const validateForm = () => {
+    // Check if all fields are filled
+    for (const [key, value] of Object.entries(formValues)) {
+      if (value.trim() === "") {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `Field ${key} harus diisi!`,
+          timer: 2000,
+        });
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handleAddPelanggan = async () => {
+  if (!validateForm()) return;
+
+  try {
+    const token = Cookies.get("token");
+    const { nik, nama, alamat, status: buyer_type_id } = formValues;
+
+    console.log({ nik, nama, alamat, buyer_type_id });
+
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}api/customer`, { 
+      nik, 
+      nama, 
+      alamat, 
+      buyer_type_id
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.status === 201) {
+      // Tutup modal setelah data berhasil ditambahkan
+      setOpen(false);
+      Swal.fire({
+        icon: "success",
+        title: "Your data has been saved",
+        timer: 1500,
+      }).then(() => {
+        window.location.reload(); // Memanggil fungsi untuk menyegarkan tabel
+      });
+    } else {
+      setError("Gagal menambahkan data pelanggan.");
+    }
+  } catch (error) {
+    console.error("Error creating customer:", error.response?.data || error.message);
+    setError(error.response?.data?.message || "Error creating customer");
+  }
+};
+
+
+
 
   return (
     <>
       <Button onClick={handleOpen} variant="gradient" className="px-4 py-4 bg-[#00AA13] rounded-full">
-         <FaPlus className='text-white' />
+        <FaPlus className="text-white" />
       </Button>
-      <Dialog size="sm" open={open} handler={handleOpen} className="p-4 w-[50%]">
+      <Dialog size="sm" open={open} handler={handleOpen} className="p-4 w-[90%] lg:w-[50%] lg:p-0">
         <DialogHeader className="relative m-0 block">
           <Typography variant="h4" color="blue-gray">
             Tambah Data Pelanggan
           </Typography>
-          <Typography className="mt-1 font-normal text-gray-600">
-            Keep your records up-to-date and organized.
-          </Typography>
-          <IconButton
-            size="sm"
-            variant="text"
-            className="!absolute right-3.5 top-3.5"
-            onClick={handleOpen}
-          >
+          <Typography className="mt-1 font-normal text-gray-600">Pastikan data sesuai dengan KTP.</Typography>
+          <IconButton size="sm" variant="text" className="!absolute right-3.5 top-3.5" onClick={handleOpen}>
             <FontAwesomeIcon icon="fa-solid fa-xmark" />
           </IconButton>
         </DialogHeader>
         <DialogBody className="space-y-4 pb-6">
-          <div>
-            <Typography
-              variant="small"
-              color="blue-gray"
-              className="mb-2 text-left font-medium"
-            >
-              Name
-            </Typography>
-            <Input
-              color="gray"
-              size="lg"
-              placeholder="eg. White Shoes"
-              name="nama"
-              value={formValues.nama}
-              onChange={handleInputChange}
-              className="placeholder:opacity-100 focus:!border-t-gray-900"
-              containerProps={{
-                className: "!min-w-full",
-              }}
-              labelProps={{
-                className: "hidden",
-              }}
-            />
-          </div>
-          <div>
-            <Typography
-              variant="small"
-              color="blue-gray"
-              className="mb-2 text-left font-medium"
-            >
-              Category
-            </Typography>
-            <Select
-              className="!w-full !border-[1.5px] !border-blue-gray-200/90 !border-t-blue-gray-200/90 bg-white text-gray-800 ring-4 ring-transparent placeholder:text-gray-600 focus:!border-primary focus:!border-t-blue-gray-900 group-hover:!border-primary"
-              placeholder="1"
-              labelProps={{
-                className: "hidden",
-              }}
-              name="kategori" // Ganti nama sesuai kebutuhan
-              onChange={handleInputChange}
-            >
-              <Option>Clothing</Option>
-              <Option>Fashion</Option>
-              <Option>Watches</Option>
-            </Select>
-          </div>
-          <div className="flex gap-4">
-            <div className="w-full">
-              <Typography
-                variant="small"
-                color="blue-gray"
-                className="mb-2 text-left font-medium"
-              >
-                Weight
+          <div className="lg:flex lg:gap-4">
+            <div className="w-full mt-5">
+              <Typography variant="small" color="blue-gray" className="lg:mb-2 text-left font-medium">
+                NIK
               </Typography>
               <Input
+                required
                 color="gray"
                 size="lg"
-                placeholder="eg. <8.8oz | 250g"
-                name="weight"
+                placeholder="NIK Sesuai KTP"
+                name="nik"
+                value={formValues.nik}
+                onChange={handleInputChange}
                 className="placeholder:opacity-100 focus:!border-t-gray-900"
-                containerProps={{
-                  className: "!min-w-full",
-                }}
-                labelProps={{
-                  className: "hidden",
-                }}
+                containerProps={{ className: "!min-w-full" }}
+                labelProps={{ className: "hidden" }}
               />
             </div>
-            <div className="w-full">
-              <Typography
-                variant="small"
-                color="blue-gray"
-                className="mb-2 text-left font-medium"
-              >
-                Size
+            <div className="w-full mt-5">
+              <Typography variant="small" color="blue-gray" className="lg:mb-2 text-left font-medium">
+                Nama
               </Typography>
               <Input
+                required
                 color="gray"
                 size="lg"
-                placeholder="eg. US 8"
-                name="size"
+                placeholder="Nama Sesuai KTP"
+                name="nama"
+                value={formValues.nama}
+                onChange={handleInputChange}
                 className="placeholder:opacity-100 focus:!border-t-gray-900"
-                containerProps={{
-                  className: "!min-w-full",
-                }}
-                labelProps={{
-                  className: "hidden",
-                }}
+                containerProps={{ className: "!min-w-full" }}
+                labelProps={{ className: "hidden" }}
               />
             </div>
           </div>
-          <div>
-            <Typography
-              variant="small"
-              color="blue-gray"
-              className="mb-2 text-left font-medium"
-            >
-              Description (Optional)
-            </Typography>
-            <Textarea
-              rows={7}
-              placeholder="eg. This is a white shoes with a comfortable sole."
-              className="!w-full !border-[1.5px] !border-blue-gray-200/90 !border-t-blue-gray-200/90 bg-white text-gray-600 ring-4 ring-transparent focus:!border-primary focus:!border-t-blue-gray-900 group-hover:!border-primary"
-              labelProps={{
-                className: "hidden",
-              }}
-            />
+
+          {/* Other fields */}
+          <div className="lg:flex lg:gap-4 ">
+            <div className="w-full mt-5">
+              <Typography variant="small" color="blue-gray" className="lg:mb-2 text-left font-medium">
+                Alamat
+              </Typography>
+              <Input
+                required
+                color="gray"
+                size="lg"
+                placeholder="Alamat Sesuai KTP"
+                name="alamat"
+                value={formValues.alamat}
+                onChange={handleInputChange}
+                className="placeholder:opacity-100 focus:!border-t-gray-900"
+                containerProps={{ className: "!min-w-full" }}
+                labelProps={{ className: "hidden" }}
+              />
+            </div>
+            <div className="w-full mt-5">
+              <Typography variant="small" color="blue-gray" className="lg:mb-2 text-left font-medium">
+                Status
+              </Typography>
+              {loading ? (
+                <p>Loading buyer types...</p>
+              ) : (
+                <div className="relative">
+                  <select required className="w-full !border-[1.5px] !border-gray-300 bg-white text-gray-800 placeholder:opacity-100 focus:!border-t-gray-900" name="status" onChange={handleSelectChange} value={formValues.status}>
+                    <option value="" disabled hidden>
+                      UMKM/RumahTangga
+                    </option>
+                    {buyerTypes.map((type) => (
+                      <option key={type.id} value={type.id.toString()}>
+                        {type.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
           </div>
         </DialogBody>
         <DialogFooter>
           <Button className="ml-auto" onClick={handleAddPelanggan}>
-            Add Product
+            Tambah Data
           </Button>
         </DialogFooter>
       </Dialog>
     </>
   );
-};
+}
 
 export default CreatePelanggan;
