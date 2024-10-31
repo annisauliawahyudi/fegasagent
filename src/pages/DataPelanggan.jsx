@@ -8,7 +8,9 @@ import { LuPencil } from 'react-icons/lu';
 import { SiMicrosoftexcel } from "react-icons/si";
 import SearchComponent from '../components/Search';
 import Swal from 'sweetalert2';
-import CustomerModal from '../components/CustomerModal';
+import UpdatePelanggan from '../components/modals/UpdatePelanggan';
+import DetailPelanggan from '../components/modals/DetailPelanggan';
+import CreatePelanggan from '../components/modals/CreatePelanggan';
 
 const DataPembelian = () => {
   const [category, setCategory] = useState([]);
@@ -25,9 +27,31 @@ const DataPembelian = () => {
     name: '',
     nik: '',
     buyerType: '',
-    description: ''
   });
   const [loadingM, setLoadingM] = useState(false);
+
+ const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+const [selectedCustomerId, setSelectedCustomerId] = useState(null);
+
+const [isModalCOpen, setIsModalCOpen] = useState(false);
+
+const openModalC = ()=> {
+  setIsModalCOpen(true);
+}
+const closeModalC = ()=> {
+  setIsModalCOpen(false);
+}
+
+const handleDetail = (customerId, e) => {
+  e.preventDefault(); // Mencegah perilaku default dari tag <a>
+  setSelectedCustomerId(customerId);
+  setIsDetailModalOpen(true); // Modal akan terbuka hanya ketika ini dipanggil
+};
+
+const handleDetailModalClose = () => {
+  setIsDetailModalOpen(false); // Modal hanya tertutup ketika ini dipanggil
+};
+  
 
   const handleEdit = (customer) => {
     setSelectedCustomer(customer);
@@ -35,7 +59,6 @@ const DataPembelian = () => {
       name: customer?.nama || '',
       nik: customer?.nik || '',
       buyerType: customer?.buyer_type?.name || '',
-      description: customer?.description || ''
     });
     setIsModalOpen(true);
   };
@@ -83,7 +106,6 @@ const DataPembelian = () => {
       name: '',
       nik: '',
       buyerType: '',
-      description: ''
     });
   };
   
@@ -172,9 +194,11 @@ const DataPembelian = () => {
             <button className='px-3 py-3 bg-[#1a311d] text-white rounded-md'>
               <SiMicrosoftexcel />
             </button>
-            <button className='px-3 py-3 bg-[#00AA13] text-gray rounded-full'>
+            {/* <button onClick={openModalC} className='px-3 py-3 bg-[#00AA13] text-gray rounded-full'>
               <FaPlus className='text-white' />
-            </button>
+             
+            </button> */}
+               <CreatePelanggan className='bg-[#00AA13]' open={isModalCOpen} handler={closeModalC}/>
           </div>
         </div>
       </div>
@@ -216,9 +240,13 @@ const DataPembelian = () => {
               currentItems.map((item, index) => (
                 <tr className='bg-white' key={item.id}>
                   <td className='p-3 text-sm text-gray-700'>
-                    <a href="#" className='font-bold text-blue-500 hover:underline'>{index + 1 + (currentPage - 1) * itemsPerPage}</a>
+                    <button onClick={(e) => handleDetail(item.id, e)} className='font-bold hover:underline'>{index + 1 + (currentPage - 1) * itemsPerPage}</button>
                   </td>
-                  <td className='p-3 text-sm text-gray-700'>{item.nama}</td>
+                  <td className='p-3 text-sm text-gray-700'>
+                    <button onClick={(e) => handleDetail(item.id, e)} className='hover:underline'>
+                      {item.nama}
+                    </button>
+                  </td>
                   <td className='p-3 text-sm text-gray-700'>{item.nik}</td>
                   <td className='p-3 text-sm text-gray-700'>
                     <span className='p-1.5 text-xs font-medium uppercase tracking-wider text-gray-800 bg-gray-200 rounded-lg bg-opacity-50'>{item.buyer_type.name}</span>
@@ -238,7 +266,7 @@ const DataPembelian = () => {
         </table>
       </div>
 
-      <div className="overflow-auto md:block mt-6 hidden">
+      <div className="overflow-auto md:block mt-5 pb-2 hidden">
         <Paginate
           currentPage={currentPage}
           totalPages={totalPages}
@@ -262,9 +290,9 @@ const DataPembelian = () => {
         ) : (filteredData.map((item, index) => (
           <div key={item.id} className='bg-white space-y-3 p-4 rounded-lg shadow'>
             <div className='flex items-center space-x-2 text-sm'>
-              <div>
-                <a href="#" className='text-blue-500 font-bold hover:underline'>#{index + 1}</a>
-              </div>
+              <td className='text-sm text-gray-700'>
+                 <button onClick={(e) => handleDetail(item.id, e)} className='font-bold hover:underline'>{index + 1 + (currentPage - 1) * itemsPerPage}</button>
+              </td>
               <div className='text-gray-500'>{item.nik}</div>
               <div>
                 <span className='p-1.5 text-xs font-medium uppercase tracking-wider text-gray-800 bg-gray-200 rounded-lg bg-opacity-50'>{item.buyer_type.name}</span>
@@ -272,7 +300,11 @@ const DataPembelian = () => {
             </div>
             <div className='text-sm text-gray-700'>{item.pekerjaan}</div>
             <div className='p-3 text-sm flex gap-2'>
-              <div className='text-sm font-medium text-black'>{item.nama}</div>
+              <div className='text-sm font-medium text-black'>
+                <button onClick={(e) => handleDetail(item.id, e)} className='hover:underline'>
+                  {item.nama}
+                </button>
+              </div>
               <button onClick={() => handleDelete(item.id)} className='text-red-600'>
                 <FiTrash2 />
               </button>
@@ -284,7 +316,14 @@ const DataPembelian = () => {
         )))}
       </div>
 
-      <CustomerModal 
+      {/* // Modal Detail */}
+      <DetailPelanggan 
+        isOpen={isDetailModalOpen} 
+        onClose={handleDetailModalClose} 
+        customerId={selectedCustomerId} 
+      />
+
+      <UpdatePelanggan 
         isOpen={isModalOpen} 
         onClose={handleModalClose} 
         customer={selectedCustomer} 

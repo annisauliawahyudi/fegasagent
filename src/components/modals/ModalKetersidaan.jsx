@@ -17,7 +17,6 @@ import Swal from "sweetalert2";
 const ModalKetersidaan = ({ open, handler }) => {
   const [current_stock, setCurrentStock] = useState(""); // State for current stock
   const [error, setError] = useState(""); // State for error messages
-  const navigate = useNavigate();
 
   // Fetch current stock when the modal opens
 

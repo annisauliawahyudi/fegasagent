@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import Cookies from 'js-cookie'; // Make sure to import Cookies for token handling
+import Cookies from 'js-cookie'; 
+import Swal from 'sweetalert2';
 
-const CustomerModal = ({ isOpen, onClose, customer }) => {
+const UpdatePelanggan = ({ isOpen, onClose, customer }) => {
   const [formValues, setFormValues] = useState({
     name: '',
     nik: '',
     buyerType: '',
-    description: ''
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null); // To store any errors from API
+  const [error, setError] = useState(null); 
+    const [buyerTypes, setBuyerTypes] = useState([]);
 
   useEffect(() => {
     const dialogBackdrop = document.querySelector('[data-dialog-backdrop="sign-in-dialog"]');
@@ -25,25 +26,43 @@ const CustomerModal = ({ isOpen, onClose, customer }) => {
       }
     }
 
-    // Update form values when the customer data changes and the modal is open
     if (isOpen && customer) {
       setFormValues({
         name: customer.nama || '',
         nik: customer.nik || '',
-        buyerType: customer.buyer_type?.name || '',
-        description: customer.description || ''
+        buyerType: customer.buyer_type?.id?.toString() || '', 
       });
     } else if (!isOpen) {
-      // Reset fields when modal is closed
+   
       setFormValues({
         name: '',
         nik: '',
         buyerType: '',
-        description: ''
       });
-      setError(null); // Reset error state
+      setError(null); 
     }
   }, [isOpen, customer]);
+
+  useEffect(() => {
+    const fetchBuyerTypes = async () => {
+      try {
+        const token = Cookies.get('token');
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/buyerType`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setBuyerTypes(response.data.data);
+      } catch (error) {
+        setError(error);
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchBuyerTypes();
+    }
+  }, [isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,43 +73,51 @@ const CustomerModal = ({ isOpen, onClose, customer }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      // Get token from cookies
-      const token = Cookies.get('token');
+  try {
+    const token = Cookies.get('token');
 
-      // Send request with Axios, include token in the header
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}api/customer/${customer?.id}`,
-        {
-          nama: formValues.name,
-          nik: formValues.nik,
-          buyer_type: formValues.buyerType,
-          description: formValues.description,
+    const response = await axios.put(
+      `${import.meta.env.VITE_API_URL}api/customer/${customer?.id}`,
+      {
+        nama: formValues.name,
+        nik: formValues.nik,
+        buyer_type_id: formValues.buyerType,  // Changed to buyer_type_id
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        onClose(); // Close modal after successful update
-      } else {
-        setError('Failed to update customer data');
       }
-    } catch (error) {
-      console.error('Error updating customer:', error);
-      setError('Error updating customer: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    );
 
-  if (!isOpen) return null; // Do not render modal if it's not open
+    if (response.status === 200) {
+      onClose(); // Close the modal after the alert disappears
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Data berhasil diubah',
+        timer: 2000,
+        showConfirmButton: false,
+      }).then(() => {
+        window.location.reload(); // Reload the page after closing the modal
+      });
+    } else {
+      setError('Failed to update customer data');
+    }
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    setError('Error updating customer: ' + error.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  if (!isOpen) return null; 
 
   return (
     <div data-dialog-backdrop="sign-in-dialog" data-dialog-backdrop-close="true"
@@ -98,7 +125,7 @@ const CustomerModal = ({ isOpen, onClose, customer }) => {
       <div data-dialog="sign-in-dialog"
         className="relative mx-auto flex w-full max-w-[24rem] flex-col rounded-xl bg-white text-gray-700 shadow-md transition-transform duration-300 transform scale-95">
         
-        {/* Button Close */}
+    
         <button 
           className="absolute top-3 right-3 text-gray-500 hover:text-gray-900"
           onClick={onClose}>
@@ -109,7 +136,7 @@ const CustomerModal = ({ isOpen, onClose, customer }) => {
         
         <div className="flex flex-col gap-4 p-6">
           <h4 className="block text-2xl font-semibold leading-snug text-blue-gray-900">Ubah Data</h4>
-          {error && <div className="text-red-500">{error}</div>} {/* Display error message */}
+          {error && <div className="text-red-500">{error}</div>}
           <div className="relative h-11 w-full min-w-[200px]">
             <input
               className="w-full h-full px-3 py-3 text-sm font-normal bg-transparent border rounded-md border-blue-gray-200 focus:border-gray-900 focus:outline-0"
@@ -129,12 +156,12 @@ const CustomerModal = ({ isOpen, onClose, customer }) => {
             />
           </div>
           <div className="relative h-11 w-full min-w-[200px]">
-            <input
+            <select
               className="w-full h-full px-3 py-3 text-sm font-normal bg-transparent border rounded-md border-blue-gray-200 focus:border-gray-900 focus:outline-0"
-              placeholder="Status"
               name="buyerType"
-              value={formValues.buyerType}
               onChange={handleChange}
+              value={formValues.buyerType}
+              // onChange={handleChange}
             />
           </div>
         </div>
@@ -144,7 +171,7 @@ const CustomerModal = ({ isOpen, onClose, customer }) => {
             type="button"
             onClick={handleSubmit}
             disabled={loading}>
-            {loading ? 'Saving...' : 'Save Changes'}
+            {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
           </button>
         </div>
       </div>
@@ -152,4 +179,4 @@ const CustomerModal = ({ isOpen, onClose, customer }) => {
   );
 };
 
-export default CustomerModal;
+export default UpdatePelanggan;
