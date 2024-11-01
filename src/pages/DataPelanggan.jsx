@@ -318,8 +318,12 @@ const DataPembelian = () => {
         </table>
       </div>
 
-      <div className="overflow-auto md:block mt-6 hidden">
-        <Paginate currentPage={currentPage} totalPages={totalPages} paginate={paginate} />
+      <div className="overflow-auto md:block mt-5 pb-2 hidden">
+        <Paginate
+          currentPage={currentPage}
+          totalPages={totalPages}
+          paginate={paginate}
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden mt-4">

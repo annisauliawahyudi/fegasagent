@@ -174,11 +174,8 @@ const UpdatePelanggan = ({ isOpen, onClose, customer }) => {
               name="buyerType"
               onChange={handleChange}
               value={formValues.buyerType}
-            >
-              {buyerTypes.map((type) => (
-                <option key={type.id} value={type.id.toString()}>{type.name}</option>
-              ))}
-            </select>
+              // onChange={handleChange}
+            />
           </div>
         </div>
         <div className="p-6 pt-0">
