@@ -12,7 +12,7 @@ const UpdatePelanggan = ({ isOpen, onClose, customer }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null); 
-    const [buyerTypes, setBuyerTypes] = useState([]);
+  const [buyerTypes, setBuyerTypes] = useState([]);
 
   useEffect(() => {
     const dialogBackdrop = document.querySelector('[data-dialog-backdrop="sign-in-dialog"]');
