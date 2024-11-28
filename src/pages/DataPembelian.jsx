@@ -4,6 +4,7 @@ import axios from "axios"; // Make sure to import axios
 import { SiMicrosoftexcel } from "react-icons/si";
 import { FaPlus } from "react-icons/fa";
 import SearchComponent from "../components/Search";
+import { IoMdDownload } from "react-icons/io";
 import CreateDataPembeli from "../components/modals/CreateDataPelanggan";
 import Paginate from "../components/Pagination";
 import {
@@ -100,8 +101,6 @@ const DataPembelian = () => {
     }
   };
   
-  
-  
   const handleDailyExcel = () => fetchExcelFile("dailyexcel", setDailyExcel);
   const handleWeeklyExcel = () => fetchExcelFile("weeklyexcel", setWeeklyExcel);
   const handleMonthlyExcel = () => fetchExcelFile("monthlyexcel", setMonthlyExcel);
@@ -130,7 +129,6 @@ const DataPembelian = () => {
     setMonthlyExcel(null);
   }, [dailyExcel, weeklyExcel, monthlyExcel]);
   
-
   // Filter data based on query
   useEffect(() => {
     if (dataPembelian && query) {
@@ -142,6 +140,41 @@ const DataPembelian = () => {
       setFilteredData(dataPembelian);
     }
   }, [query, dataPembelian]);
+
+  const handlePrintPDF = async (saleId) => {
+    try {
+      const token = Cookies.get("token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}api/sale/pdf/${saleId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: "blob",
+        }
+      );
+  
+      if (response.status === 200) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `sale_${saleId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } else {
+        alert("Gagal mengunduh PDF, status tidak sukses.");
+      }
+    } catch (error) {
+      console.error("Error printing PDF:", error);
+      if (error.response) {
+        console.error("Error response:", error.response.data);
+      }
+      alert("Gagal mengunduh PDF.");
+    }
+  };
+  
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -208,6 +241,9 @@ const DataPembelian = () => {
               <th className="p-3 text-sm font-semibold tracking-wide text-left">
                 Tanggal
               </th>
+              <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                Aksi
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -224,7 +260,12 @@ const DataPembelian = () => {
                   </p>
                 </td>
                 <td className="p-3 text-sm text-gray-700">
-                  <span className="p-1.5 text-xs font-medium uppercase tracking-wider text-gray-800 bg-gray-200 rounded-lg bg-opacity-50">
+                  <span className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
+                    ${data.customerModel?.buyer_type?.name === "UMKM"
+                    ? "bg-[#00AA13]"
+                    : data.customerModel?.buyer_type?.name === "Rumah Tangga"
+                    ? "bg-[#FFBF00]"
+                    : "bg-gray-200"}`}>
                     {data.customerModel?.buyer_type?.name || "N/A"}
                   </span>
                 </td>
@@ -235,6 +276,16 @@ const DataPembelian = () => {
                   {data.createdAt
                     ? new Date(data.createdAt).toLocaleDateString()
                     : "N/A"}
+                </td>
+                <td className="p-3 text-sm text-gray-700">
+                  <Button
+                    onClick={() => handlePrintPDF(data.id)}
+                    color="black"
+                    size="sm"
+                    className="mr-2 text-white capitalize flex gap-1">
+                    <IoMdDownload className="w-4 h-4"/>
+                    Print Struk
+                  </Button>
                 </td>
               </tr>
             ))}
@@ -267,9 +318,14 @@ const DataPembelian = () => {
                     <p>{data.customerModel?.nama || "N/A"}</p>
                   </div>
                   <div>
-                    <span className="p-1.5 text-xs font-medium uppercase tracking-wider text-gray-800 bg-gray-200 rounded-lg bg-opacity-50">
-                      {data.customerModel?.buyer_type?.name || "N/A"}
-                    </span>
+                  <span className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
+                    ${data.customerModel?.buyer_type?.name === "UMKM"
+                    ? "bg-[#00AA13]"
+                    : data.customerModel?.buyer_type?.name === "Rumah Tangga"
+                    ? "bg-[#FFBF00]"
+                    : "bg-gray-200"}`}>
+                    {data.customerModel?.buyer_type?.name || "N/A"}
+                  </span>
                   </div>
                 </div>
                 <p className="text-sm text-gray-700">
@@ -281,6 +337,16 @@ const DataPembelian = () => {
                     ? new Date(data.createdAt).toLocaleDateString()
                     : "N/A"}
                 </p>
+                <div className="mt-1">
+                <Button
+                    onClick={() => handlePrintPDF(data.id)}
+                    color="black"
+                    size="sm"
+                    className="mr-2 text-white capitalize flex gap-1">
+                    <IoMdDownload className="w-4 h-4"/>
+                    Print Struk
+                  </Button>
+                </div>
               </div>
             </div>
           ))

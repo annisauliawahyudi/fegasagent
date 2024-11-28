@@ -4,11 +4,9 @@ import Login from "./pages/auth/Login";
 import Home from "./pages/Home";
 import DataPembelian from "./pages/DataPembelian";
 import DataPelanggan from "./pages/DataPelanggan";
-import Keuangan from "./pages/Keuangan";
-import Seqen from "./pages/Seqen";
+import Scan from "./pages/Scan";
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import PageNotFound from "./pages/PageNotFound";  // Import PageNotFound
-import Registrasi from "./pages/Registrasi";
 
 function App() {
   return (
@@ -20,11 +18,9 @@ function App() {
         {/* Rute-rute yang dilindungi menggunakan ProtectedRoute */}
         <Route path="/home" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<Home />} />
-          <Route path="Scan" element={<Seqen />} />
+          <Route path="Scan" element={<Scan />} />
           <Route path="DataPembelian" element={<DataPembelian />} />
           <Route path="DataPelanggan" element={<DataPelanggan />} />
-          <Route path="Keuangan" element={<Keuangan />} />
-          <Route path="Registrasi" element={<Registrasi />} />
         </Route>
 
         {/* Halaman Not Found */}

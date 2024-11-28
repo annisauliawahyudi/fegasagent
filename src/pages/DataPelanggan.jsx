@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Paginate from "../components/Pagination";
-// import { FaPlus } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import { FiTrash2 } from "react-icons/fi";
 import { LuPencil } from "react-icons/lu";
 import { SiMicrosoftexcel } from "react-icons/si";
@@ -298,11 +298,18 @@ const DataPembelian = () => {
                   <td className="p-3 text-sm text-gray-700">{item.nik}</td>
                   <td className="p-3 text-sm text-gray-700">{item.alamat}</td>
                   <td className="p-3 text-sm text-gray-700">
-                    <span className="p-1.5 text-xs font-medium uppercase tracking-wider text-gray-800 bg-gray-200 rounded-lg bg-opacity-50">{item.buyer_type.name}</span>
+                    <span className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
+                    ${item.buyer_type.name === "UMKM"
+                    ? "bg-[#00AA13]"
+                    : item.buyer_type.name === "Rumah Tangga"
+                    ? "bg-[#FFBF00]"
+                    : "bg-gray-200"}`}>
+                    {item.buyer_type.name || "N/A"}
+                    </span>
                   </td>
                   <td className="p-3 text-sm flex gap-2">
-                       <button onClick={openModalGas} className="text-blue-600">
-                      <CreateGas isOpen={isModalGasOpen} onClose={closeModalGas} />
+                    <button onClick={openModalGas} className="text-blue-600">
+                      <CreateGas isOpen={isModalGasOpen} onClose={closeModalGas} customer={selectedCustomer}/>
                     </button>
                     <button onClick={() => handleDelete(item.id)} className="text-red-600">
                       <FiTrash2 />
@@ -344,7 +351,14 @@ const DataPembelian = () => {
                 </td>
                 <div className="text-gray-500">{item.nik}</div>
                 <div>
-                  <span className="p-1.5 text-xs font-medium uppercase tracking-wider text-gray-800 bg-gray-200 rounded-lg bg-opacity-50">{item.buyer_type.name}</span>
+                  <span className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
+                    ${item.buyer_type.name === "UMKM"
+                    ? "bg-[#00AA13]"
+                    : item.buyer_type.name === "Rumah Tangga"
+                    ? "bg-[#FFBF00]"
+                    : "bg-gray-200"}`}>
+                    {item.buyer_type.name || "N/A"}
+                    </span>
                 </div>
               </div>
               <div className="ml-5 text-sm text-gray-700">{item.alamat}</div>

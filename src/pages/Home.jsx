@@ -256,7 +256,7 @@ const Home = () => {
       <div className="flex flex-col sm:flex-row justify-between p-5">
         <div className="space-y-1">
           <h1 className="font-semibold text-xl sm:text-2xl">Penjualan Bulan Ini :</h1>
-          <p className="text-xl sm:text-2xl font-medium text-[#00AA13]">
+          <p className="text-xl sm:text-2xl font-semibold text-[#00AA13]">
             {penjualanBulanan !== null ? `+${penjualanBulanan}` : "0"}
           </p>
         </div>
@@ -279,8 +279,8 @@ const Home = () => {
                 </button>
                 <HistoryKetersediaan open={isModalHistoryOpen} handler={closeModalHistory} />
               </div>
-              <p className="text-2xl sm:text-3xl font-semibold">
-                {ketersediaanGas !== null ? ` ${ketersediaanGas} tabung` : "Loading..."}
+              <p className="text-2xl sm:text-3xl font-medium">
+                {ketersediaanGas !== null ? ` ${ketersediaanGas} tabung` : "0"}
               </p>
               <div className="flex text-3xl justify-end">
                 <button onClick={openModalKetersediaan} className="text-[#00AA13]">
@@ -293,7 +293,7 @@ const Home = () => {
           <div className="w-full sm:w-1/2">
             <div className="bg-white p-3 rounded-lg shadow-md h-full">
               <h1 className="text-xl sm:text-2xl font-semibold">Gas Terjual Harian :</h1>
-              <p className="text-2xl sm:text-3xl font-semibold">
+              <p className="text-2xl sm:text-3xl font-medium">
                 {penjualanHarian !== null ? `${penjualanHarian} tabung` : "0"}
               </p>
             </div>

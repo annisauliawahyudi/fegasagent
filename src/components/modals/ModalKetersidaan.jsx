@@ -87,7 +87,7 @@ const ModalKetersidaan = ({ open, handler }) => {
               Masukan Jumlah Gas
             </Typography>
             <Input
-              label=""
+              label="Jumlah Gas"
               size="lg"
               type="number"
               value={current_stock}
