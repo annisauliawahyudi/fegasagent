@@ -4,6 +4,7 @@ import axios from "axios"; // Make sure to import axios
 import { SiMicrosoftexcel } from "react-icons/si";
 import { FaPlus } from "react-icons/fa";
 import SearchComponent from "../components/Search";
+import { IoMdDownload } from "react-icons/io";
 import CreateDataPembeli from "../components/modals/CreateDataPelanggan";
 import Paginate from "../components/Pagination";
 import CreateGs from "../components/modals/Creategs";
@@ -96,7 +97,11 @@ const DataPembelian = () => {
       alert("Tidak ada data pembelian.");
     }
   };
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> ea346dd72fc8ed8e754def70cd6654dcc3aa9229
   const handleDailyExcel = () => fetchExcelFile("dailyexcel", setDailyExcel);
   const handleWeeklyExcel = () => fetchExcelFile("weeklyexcel", setWeeklyExcel);
   const handleMonthlyExcel = () => fetchExcelFile("monthlyexcel", setMonthlyExcel);
@@ -123,7 +128,11 @@ const DataPembelian = () => {
     setWeeklyExcel(null);
     setMonthlyExcel(null);
   }, [dailyExcel, weeklyExcel, monthlyExcel]);
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> ea346dd72fc8ed8e754def70cd6654dcc3aa9229
   // Filter data based on query
   useEffect(() => {
     if (dataPembelian && query) {
@@ -133,6 +142,41 @@ const DataPembelian = () => {
       setFilteredData(dataPembelian);
     }
   }, [query, dataPembelian]);
+
+  const handlePrintPDF = async (saleId) => {
+    try {
+      const token = Cookies.get("token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}api/sale/pdf/${saleId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: "blob",
+        }
+      );
+  
+      if (response.status === 200) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `sale_${saleId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } else {
+        alert("Gagal mengunduh PDF, status tidak sukses.");
+      }
+    } catch (error) {
+      console.error("Error printing PDF:", error);
+      if (error.response) {
+        console.error("Error response:", error.response.data);
+      }
+      alert("Gagal mengunduh PDF.");
+    }
+  };
+  
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -184,11 +228,32 @@ const DataPembelian = () => {
         <table className="w-full">
           <thead className="bg-[#004408] text-white">
             <tr>
+<<<<<<< HEAD
               <th className="w-20 p-3 text-sm font-semibold tracking-wide text-left">No.</th>
               <th className="p-3 text-sm font-semibold tracking-wide text-left">Nama</th>
               <th className="p-3 text-sm font-semibold tracking-wide text-left">Status</th>
               <th className="p-3 text-sm font-semibold tracking-wide text-left">Total Beli</th>
               <th className="p-3 text-sm font-semibold tracking-wide text-left">Tanggal</th>
+=======
+              <th className="w-20 p-3 text-sm font-semibold tracking-wide text-left">
+                No.
+              </th>
+              <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                Nama
+              </th>
+              <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                Status
+              </th>
+              <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                Total Beli
+              </th>
+              <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                Tanggal
+              </th>
+              <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                Aksi
+              </th>
+>>>>>>> ea346dd72fc8ed8e754def70cd6654dcc3aa9229
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -201,10 +266,40 @@ const DataPembelian = () => {
                   <p>{data.customerModel?.nama}</p>
                 </td>
                 <td className="p-3 text-sm text-gray-700">
+<<<<<<< HEAD
                   <span className="p-1.5 text-xs font-medium uppercase tracking-wider text-gray-800 bg-gray-200 rounded-lg bg-opacity-50">{data.customerModel?.buyer_type?.name || "N/A"}</span>
                 </td>
                 <td className="p-3 text-sm text-gray-700">{data.quantity || 0}</td>
                 <td className="p-3 text-sm text-gray-700">{data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}</td>
+=======
+                  <span className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
+                    ${data.customerModel?.buyer_type?.name === "UMKM"
+                    ? "bg-[#00AA13]"
+                    : data.customerModel?.buyer_type?.name === "Rumah Tangga"
+                    ? "bg-[#FFBF00]"
+                    : "bg-gray-200"}`}>
+                    {data.customerModel?.buyer_type?.name || "N/A"}
+                  </span>
+                </td>
+                <td className="p-3 text-sm text-gray-700">
+                  {data.quantity || 0}
+                </td>
+                <td className="p-3 text-sm text-gray-700">
+                  {data.createdAt
+                    ? new Date(data.createdAt).toLocaleDateString()
+                    : "N/A"}
+                </td>
+                <td className="p-3 text-sm text-gray-700">
+                  <Button
+                    onClick={() => handlePrintPDF(data.id)}
+                    color="black"
+                    size="sm"
+                    className="mr-2 text-white capitalize flex gap-1">
+                    <IoMdDownload className="w-4 h-4"/>
+                    Print Struk
+                  </Button>
+                </td>
+>>>>>>> ea346dd72fc8ed8e754def70cd6654dcc3aa9229
               </tr>
             ))}
           </tbody>
@@ -230,11 +325,43 @@ const DataPembelian = () => {
                     <p>{data.customerModel?.nama || "N/A"}</p>
                   </div>
                   <div>
+<<<<<<< HEAD
                     <span className="p-1.5 text-xs font-medium uppercase tracking-wider text-gray-800 bg-gray-200 rounded-lg bg-opacity-50">{data.customerModel?.buyer_type?.name || "N/A"}</span>
                   </div>
                 </div>
                 <p className="text-sm text-gray-700">Pembelian: {data.quantity || 0}</p>
                 <p className="text-sm text-gray-700">Tanggal: {data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}</p>
+=======
+                  <span className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
+                    ${data.customerModel?.buyer_type?.name === "UMKM"
+                    ? "bg-[#00AA13]"
+                    : data.customerModel?.buyer_type?.name === "Rumah Tangga"
+                    ? "bg-[#FFBF00]"
+                    : "bg-gray-200"}`}>
+                    {data.customerModel?.buyer_type?.name || "N/A"}
+                  </span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-700">
+                  Pembelian: {data.quantity || 0}
+                </p>
+                <p className="text-sm text-gray-700">
+                  Tanggal:{" "}
+                  {data.createdAt
+                    ? new Date(data.createdAt).toLocaleDateString()
+                    : "N/A"}
+                </p>
+                <div className="mt-1">
+                <Button
+                    onClick={() => handlePrintPDF(data.id)}
+                    color="black"
+                    size="sm"
+                    className="mr-2 text-white capitalize flex gap-1">
+                    <IoMdDownload className="w-4 h-4"/>
+                    Print Struk
+                  </Button>
+                </div>
+>>>>>>> ea346dd72fc8ed8e754def70cd6654dcc3aa9229
               </div>
             </div>
           ))

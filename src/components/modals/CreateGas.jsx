@@ -5,18 +5,17 @@ import Swal from "sweetalert2";
 import { Input, Button, Dialog, IconButton, Typography, DialogBody, DialogHeader, DialogFooter } from "@material-tailwind/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FaPlus } from "react-icons/fa";
-// import {  Button } from "@material-tailwind/react";
 import { useCopyToClipboard } from "usehooks-ts";
 import { CheckIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
- 
 
-export function CreateGas({ refreshTable, customerId }) {
-  // Menggunakan customerId sebagai props
+export function CreateGas({ refreshTable, customerId, nik }) { // Terima NIK sebagai prop
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
   const [formValues, setFormValues] = useState({
-    quantity: "", // Field untuk jumlah yang dibeli
+    quantity: "",
   });
+  const [copied, setCopied] = useState(false);
+  const [value, copy] = useCopyToClipboard();
 
   const handleOpen = () => setOpen(!open);
 
@@ -30,12 +29,10 @@ export function CreateGas({ refreshTable, customerId }) {
       const token = Cookies.get("token");
       const { quantity } = formValues;
 
-      console.log("Customer ID:", customerId); // Log the customer ID to check its value
-
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}api/sale`,
         {
-          customer_id: customerId, // Menggunakan customer_id
+          customer_id: customerId,
           quantity,
         },
         {
@@ -46,14 +43,14 @@ export function CreateGas({ refreshTable, customerId }) {
       );
 
       if (response.status === 201) {
-        setOpen(false); // Menutup modal setelah data berhasil ditambahkan
+        setOpen(false);
         Swal.fire({
           icon: "success",
           title: `Data berhasil disimpan untuk customer ID ${customerId}`,
-          showConfirmButton: true, // Tombol "close"
+          showConfirmButton: true,
           confirmButtonText: "Close",
         }).then(() => {
-          refreshTable(); // Refresh tabel setelah menutup SweetAlert
+          refreshTable();
         });
       } else {
         setError("Gagal menambahkan banyaknya gas.");
@@ -64,9 +61,6 @@ export function CreateGas({ refreshTable, customerId }) {
     }
   };
 
-   const [value, copy] = useCopyToClipboard();
-  const [copied, setCopied] = useState(false);
-  
   return (
     <>
       <Button onClick={handleOpen} variant="gradient" className="px-1 py-1 bg-[#344b52] rounded-full">
@@ -75,27 +69,30 @@ export function CreateGas({ refreshTable, customerId }) {
       <Dialog size="sm" open={open} handler={handleOpen} className="p-4 w-[60%] lg:w-[30%] lg:p-0">
         <DialogHeader className="relative m-0 block">
           <Typography variant="h4" color="blue-gray">
-            Tambah Gas
+            Pembelian Gas
           </Typography>
-          <Typography className="mt-1 font-normal text-gray-600">Tambah data gas</Typography>
+          <Typography className="mt-1 font-normal text-gray-600">Tambah data pembelian</Typography>
           <IconButton size="sm" variant="text" className="!absolute right-3.5 top-3.5" onClick={handleOpen}>
             <FontAwesomeIcon icon="fa-solid fa-xmark" />
           </IconButton>
         </DialogHeader>
-        <DialogBody className="space-y-4 pb-6 mx-14">
+        <DialogBody className="space-y-4 mx-2">
+          {/* Tombol untuk menampilkan dan menyalin NIK */}
           <Button
             onMouseLeave={() => setCopied(false)}
             onClick={() => {
-              copy("nik");
+              copy(nik); // Copy NIK dari prop
               setCopied(true);
             }}
             className="flex items-center gap-x-3 px-4 py-2.5 lowercase bg-gray-200"
           >
             <Typography className="border-r text-black border-black pr-3 font-normal placeholder:opacity-100 focus:!border-t-gray-900" variant="small">
-              nik
+              {nik} {/* Tampilkan NIK */}
             </Typography>
             {copied ? <CheckIcon className="h-4 w-4 text-black" /> : <DocumentDuplicateIcon className="h-4 w-4 text-black" />}
           </Button>
+          
+          {/* Field untuk Banyak Gas */}
           <div className="lg:flex lg:gap-4">
             <div className="w-[93%] ">
               <Typography variant="small" color="blue-gray" className="lg:mb-2 text-left font-medium">

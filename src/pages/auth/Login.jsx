@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import axios from 'axios';
 import {
   Card,
-  Input,
-  Button,
+  CardHeader,
+  CardBody,
+  CardFooter,
   Typography,
+  Input,
+  Checkbox,
+  Button,
 } from "@material-tailwind/react";
-import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -55,59 +59,48 @@ const Login = () => {
       setError({ apiError: error.response.data.message });
     }
   };
-
   return (
-    <div className="flex justify-center items-center min-h-screen bg-cover bg-center relative px-10 lg:px-0" style={{ backgroundImage: 'url("https://asumsi.co/wp-content/uploads/2024/05/medium_13-04-2018-07-58-14-8145.jpg")' }}>
-      <Card color="white" className='p-8 lg:p-12 bg-opacity-85 w-screen lg:w-auto rounded-xl'>
-        <img src="/logo.svg" alt="Logo" className='w-12' />
-        <Typography color="black" className="mt-1 font-normal">
-          Selamat datang di website GasAgent!
+    <div className='flex justify-center items-center min-h-screen px-3 lg:px-0 bg-cover bg-center relative' style={{ backgroundImage: 'url("https://asumsi.co/wp-content/uploads/2024/05/medium_13-04-2018-07-58-14-8145.jpg")' }}>
+    <Card className="w-[30rem] bg-opacity-85 lg:h-[70vh]">
+      <CardHeader className='p-5 text-center bg-[#009911] rounded-lg mx-5'>
+        <Typography variant="h4" color="white">
+          Sign Up
         </Typography>
-        <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={handleLogin}>
-          <div className="mb-1 flex flex-col gap-6">
-            <Typography variant="h6" color="blue-gray" className="-mb-3">
-              Your Name
-            </Typography>
-            <Input
-              size="lg"
-              placeholder="John Doe"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              error={!!error.username}
-              className={`border border-gray-400 focus:border-gray-900 ${error.username ? 'border-red-500 focus:border-red-500' : ''}`}
-              labelProps={{
-                className: "before:content-none after:content-none",
-              }}
-            />
-            {error.username && <Typography color="red" className="text-sm -mt-5">{error.username}</Typography>}
-            <Typography variant="h6" color="blue-gray" className="-mb-3">
-              Password
-            </Typography>
-            <Input
-              type="password"
-              size="lg"
-              placeholder="********"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={!!error.password}
-              className={`border border-gray-400 focus:border-gray-900 ${error.password ? 'border-red-500 focus:border-red-500' : ''}`}
-              labelProps={{
-                className: "before:content-none after:content-none",
-              }}
-            />
-            {error.password && <Typography color="red" className="text-sm -mt-5">{error.password}</Typography>}
-            {error.apiError && <Typography color="red" className="text-sm mt-3">{error.apiError}</Typography>}
-          </div>
-          <Button className="mt-6 bg-[#00aa13]" fullWidth type="submit">
-            Sign Up
-          </Button>
-          <Typography className='text-center mt-10 text-sm' color='black'>
-              Copyright ©2024
+        <Typography color="white" className="mt-1 font-normal text-sm lg:text-base">
+          Silahkan Masukan Username & Password.
+        </Typography>
+      </CardHeader>
+      <CardBody>
+        <form onSubmit={handleLogin} className="flex flex-col gap-4 my-5">
+          <Typography variant="h6" color="blue-gray" className="-mb-2.5">
+            Username
           </Typography>
-        </form>
-      </Card>
-    </div>
-  );
-};
+          <Input label="Username" size="lg" className={`${error.username ? 'border-red-600 focus:border-red-600' : '' }`} value={username} onChange={(e) => setUsername(e.target.value)} error={!!error.username}/>
 
-export default Login;
+          <Typography variant="h6" color="blue-gray" className="-mb-2.5">
+            Password
+          </Typography>
+          <Input label="Password" size="lg" type="password" className={`${error.password ? 'border-red-600 focus:border-red-600' : '' }`} value={password} onChange={(e) => setPassword(e.target.value)} error={!!error.password}/>
+          <Button fullWidth className='bg-[#009911] mt-5' type="submit">
+          Sign In
+          </Button>        
+        </form>
+        <Typography variant="small" className="mt-6 flex justify-center">
+          Don&apos;t have an account?
+          <Typography
+            as="a"
+            href="#signup"
+            variant="small"
+            color="blue-gray"
+            className="ml-1 font-bold"
+          >
+            Sign up
+          </Typography>
+        </Typography>
+      </CardBody>
+    </Card>
+    </div>
+  )
+}
+
+export default Login
