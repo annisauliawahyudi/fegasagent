@@ -11,7 +11,8 @@ import Swal from "sweetalert2";
 import UpdatePelanggan from "../components/modals/UpdatePelanggan";
 import DetailPelanggan from "../components/modals/DetailPelanggan";
 import CreatePelanggan from "../components/modals/CreatePelanggan";
-import CreateGas from "../components/modals/CreateGas";
+// import CreateGas from "../components/modals/CreateGas";
+// import CreateGs from "../components/modals/Creategs";
 import * as XLSX from "xlsx";
 
 const DataPembelian = () => {
@@ -224,13 +225,13 @@ const DataPembelian = () => {
     });
   };
   // State untuk mengontrol modal
-  const [isModalGasOpen, setIsModalGasOpen] = useState(false);
-  const openModalGas = () => {
-    setIsModalGasOpen(true);
-  };
-  const closeModalGas = () => {
-    setIsModalGasOpen(false);
-  };
+  // const [isModalGasOpen, setIsModalGasOpen] = useState(false);
+  // const openModalGas = () => {
+  //   setIsModalGasOpen(true);
+  // };
+  // const closeModalGas = () => {
+  //   setIsModalGasOpen(false);
+  // };
   return (
     <div className="p-5 h-screen">
       <div className="bg-white overflow-auto rounded-lg shadow">
@@ -301,9 +302,9 @@ const DataPembelian = () => {
                     <span className="p-1.5 text-xs font-medium uppercase tracking-wider text-gray-800 bg-gray-200 rounded-lg bg-opacity-50">{item.buyer_type.name}</span>
                   </td>
                   <td className="p-3 text-sm flex gap-2">
-                       <button onClick={openModalGas} className="text-blue-600">
-                      <CreateGas isOpen={isModalGasOpen} onClose={closeModalGas} />
-                    </button>
+                       {/* <button onClick={openModalGas} className="text-blue-600">
+                      <CreateGs isOpen={isModalGasOpen} onClose={closeModalGas} />
+                    </button> */}
                     <button onClick={() => handleDelete(item.id)} className="text-red-600">
                       <FiTrash2 />
                     </button>
@@ -355,6 +356,9 @@ const DataPembelian = () => {
                     {item.nama}
                   </button>
                 </div>
+                {/* <button onClick={openModalGas} className="text-blue-600">
+                      <CreateGs isOpen={isModalGasOpen} onClose={closeModalGas} />
+                    </button> */}
                 <button onClick={() => handleDelete(item.id)} className="text-red-600">
                   <FiTrash2 />
                 </button>
