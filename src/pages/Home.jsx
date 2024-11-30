@@ -125,12 +125,11 @@ const Home = () => {
     fetchPenjualanHarian();
   }, []);
 
-  // Fetch bar chart data 
   useEffect(() => {
     const fetchBarChartData = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/buyertypesale`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/monthlysales`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -138,21 +137,28 @@ const Home = () => {
         });
   
         const result = response.data;
-        if (result.status === 200) {
+        console.log("API Response:", result);
+  
+        if (result.status === 200 && Array.isArray(result.data)) {
           // Initialize arrays for UMKM and Rumah Tangga with zeroes for each month
           const umkmData = Array(12).fill(0);
           const rumahTanggaData = Array(12).fill(0);
   
-          // Get the current month (0 = January, 10 = October, etc.)
-          const currentMonthIndex = new Date().getMonth();
+          // Iterate through the data and populate the arrays
+          result.data.forEach((item, index) => {
+            if (Array.isArray(item.sales)) {
+              // Assuming sales[0] is UMKM and sales[1] is Rumah Tangga
+              const umkmQuantity = parseInt(item.sales[0]?.total_quantity || "0", 10);
+              const rumahTanggaQuantity = parseInt(item.sales[1]?.total_quantity || "0", 10);
   
-          // Parse quantities and update the current month data
-          const umkmQuantity = parseInt(result.data[0].total_quantity) || 0;
-          const rumahTanggaQuantity = parseInt(result.data[1].total_quantity) || 0;
-  
-          // Set the values only for the current month
-          umkmData[currentMonthIndex] = umkmQuantity;
-          rumahTanggaData[currentMonthIndex] = rumahTanggaQuantity;
+              umkmData[index] = umkmQuantity;
+              rumahTanggaData[index] = rumahTanggaQuantity;
+            } else {
+              // If sales is null, keep data as 0
+              umkmData[index] = 0;
+              rumahTanggaData[index] = 0;
+            }
+          });
   
           // Update the bar chart data state with the new values
           setBarChartData((prevData) => ({
@@ -160,22 +166,29 @@ const Home = () => {
             datasets: [
               {
                 ...prevData.datasets[0],
+                label: "UMKM",
                 data: umkmData,
               },
               {
                 ...prevData.datasets[1],
+                label: "Rumah Tangga",
                 data: rumahTanggaData,
               },
             ],
           }));
+        } else {
+          console.error("Unexpected API response format or empty data:", result);
         }
       } catch (error) {
-        console.error("Error fetching buyer type sales data:", error);
+        console.error("Error fetching monthly sales data:", error);
       }
     };
   
     fetchBarChartData();
   }, []);
+  
+  
+  
 
   // Fetch pie chart data
   useEffect(() => {

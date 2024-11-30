@@ -6,29 +6,30 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const DataKTP = ({
-  image,
+  image: initialImage,
   nik: initialNik,
   name: initialName,
-  kecamatan: initialKecamatan,
+  alamat: initialAlamat,
   open, // Prop untuk open state modal
   onClose, // Prop untuk close handler
 }) => {
+  const [image, setImage] = useState(initialImage);
   const [nik, setNik] = useState(initialNik);
   const [name, setName] = useState(initialName);
-  const [kecamatan, setKecamatan] = useState(initialKecamatan);
+  const [alamat, setAlamat] = useState(initialAlamat);
   const [buyerTypes, setBuyerTypes] = useState([]);
+  const [gambar, setGambar] = useState(null); // For the image file
   const [selectedStatus, setSelectedStatus] = useState(""); // Control the selected status
-  const [ktpImage, setKtpImage] = useState(null); // Track KTP image
-  const [umkmImage, setUmkmImage] = useState(null); // Track UMKM image
   const [loading, setLoading] = useState(false); // Track loading state
   const [error, setError] = useState(null); // Track error state
   const navigate = useNavigate(); // Initialize useNavigate for navigation
 
   useEffect(() => {
+    setImage(initialImage);
     setNik(initialNik);
     setName(initialName);
-    setKecamatan(initialKecamatan);
-  }, [initialNik, initialName, initialKecamatan]);
+    setAlamat(initialAlamat);
+  }, [initialImage, initialNik, initialName, initialAlamat]);
 
   useEffect(() => {
     const fetchBuyerTypes = async () => {
@@ -56,11 +57,9 @@ const DataKTP = ({
   }, [open]);
 
   const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    if (name === "ktpImage" && files.length > 0) {
-      setKtpImage(files[0]);
-    } else if (name === "umkmImage" && files.length > 0) {
-      setUmkmImage(files[0]);
+    const { files } = e.target;
+    if (files.length > 0) {
+      setGambar(files[0]); // Simpan file ke state gambar
     }
   };
 
@@ -68,13 +67,26 @@ const DataKTP = ({
     try {
       const token = Cookies.get("token");
       const formData = new FormData();
+      if (image) {
+        const response = await fetch(image); // Fetch blob dari URL gambar
+        const blob = await response.blob(); // Konversi ke blob
+        formData.append("fotoKtp", blob, "ktp-image.jpg"); // Tambahkan ke FormData
+      }
       formData.append("nik", nik);
       formData.append("nama", name);
-      formData.append("alamat", kecamatan);
-      formData.append("buyer_type_id", selectedStatus);
-      if (ktpImage) formData.append("ktp_image", ktpImage); // Add KTP image if it exists
-      if (umkmImage) formData.append("umkm_image", umkmImage); // Add UMKM image if it exists
-
+      formData.append("alamat", alamat);
+      
+      // Temukan ID buyer_type berdasarkan nama yang dipilih
+      const buyerType = buyerTypes.find(type => type.name === selectedStatus);
+      if (buyerType) {
+        formData.append("buyer_type_id", buyerType.id); // Kirim ID, bukan nama
+      } else {
+        setError("Tipe pembeli tidak valid.");
+        return;
+      }
+      
+      if (gambar) formData.append("gambar", gambar); // Hanya tambahkan jika ada file gambar
+  
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}api/customer`,
         formData,
@@ -85,16 +97,20 @@ const DataKTP = ({
           },
         }
       );
-
+  
       if (response.status === 201) {
-        // Close modal after data is added successfully
-        onClose();
+        // Tutup modal terlebih dahulu
+        onClose(); 
+  
+        // Tampilkan alert SweetAlert setelah modal tertutup
         Swal.fire({
           icon: "success",
           title: "Your data has been saved",
           timer: 1500,
-        }).then(() => {
-          navigate("/scan"); // Redirect to the "Scan" page
+          showConfirmButton: false,
+          willClose: () => {
+            navigate("/home/scan"); // Navigasi ke halaman utama
+          },
         });
       } else {
         setError("Gagal menambahkan data pelanggan.");
@@ -104,6 +120,8 @@ const DataKTP = ({
       setError(error.response?.data?.message || "Error creating customer");
     }
   };
+  
+  
 
   return (
     <Dialog
@@ -127,12 +145,24 @@ const DataKTP = ({
             <div className="flex flex-wrap justify-between gap-4">
               {/* Row 1 */}
               <div className="flex flex-col w-full sm:w-[48%]">
-                <p className="text-black">NIK</p>
+                <p className="text-black">NIK <span className="text-red-600">*</span></p>
                 <Input
+                  required
                   value={nik}
                   size="lg"
                   placeholder="NIK"
-                  onChange={(e) => setNik(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Validasi agar hanya menerima angka dan panjang maksimal 16
+                    if (/^\d*$/.test(value) && value.length <= 16) {
+                      setNik(value);
+                    }
+                  }}
+                  onBlur={() => {
+                    if (nik.length !== 16) {
+                      alert("NIK harus terdiri dari 16 digit angka!");
+                    }
+                  }}
                   className="!border-t-blue-gray-200 focus:!border-t-gray-900"
                   labelProps={{
                     className: "before:content-none after:content-none",
@@ -142,14 +172,15 @@ const DataKTP = ({
               <div className="flex flex-col w-full sm:w-[48%]">
                 <p className="text-black">Nama</p>
                 <Input
+                  required
                   value={name}
                   size="lg"
-                  placeholder="Nama"
+                  label="Nama"
                   onChange={(e) => setName(e.target.value)}
-                  className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                  labelProps={{
-                    className: "before:content-none after:content-none",
-                  }}
+                  // className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+                  // labelProps={{
+                  //   className: "before:content-none after:content-none",
+                  // }}
                 />
               </div>
 
@@ -157,10 +188,11 @@ const DataKTP = ({
               <div className="flex flex-col w-full sm:w-[48%]">
                 <p className="text-black">Alamat</p>
                 <Input
-                  value={kecamatan}
+                  required
+                  value={alamat}
                   size="lg"
                   placeholder="Alamat"
-                  onChange={(e) => setKecamatan(e.target.value)}
+                  onChange={(e) => setAlamat(e.target.value)}
                   className="!border-t-blue-gray-200 focus:!border-t-gray-900"
                   labelProps={{
                     className: "before:content-none after:content-none",
@@ -178,7 +210,7 @@ const DataKTP = ({
                     name="status"
                   >
                     <option disabled value="">
-                      UMKM/RumahTangga
+                      Pilih Status Pembeli
                     </option>
                     {buyerTypes.map((type) => (
                       <option key={type.id} value={type.name}>
@@ -188,21 +220,21 @@ const DataKTP = ({
                   </select>
                 </div>
               </div>
+            </div>
+
             {/* Conditional File Upload Fields */}
             {selectedStatus === "UMKM" && (
-              <div className="flex flex-col w-full sm:w-[48%]">
-                <p className="text-black">Upload UMKM Image</p>
+              <div className="flex flex-col w-full sm:w-[48%] mt-2">
+                <p className="text-black">Upload Gambar</p>
                 <input
-                  color="gray"
-                  size="lg"
+                  required
                   type="file"
-                  name="umkmImage"
-                  onChange={handleFileChange} 
+                  name="gambar"
+                  onChange={handleFileChange}
                   className="block w-full text-lg text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50"
                 />
               </div>
             )}
-            </div>
           </form>
 
           <div className="flex gap-1">
