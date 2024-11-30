@@ -16,10 +16,23 @@ ChartJS.register(ChartDataLabels);
 const Home = () => {
   // State to store API data
   const [ketersediaanGas, setKetersediaanGas] = useState(null);
-  const [penjualanBulanan, setPenjualanBulanan] = useState(null); 
-  const [penjualanHarian, setPenjualanHarian] = useState(null); 
+  const [penjualanBulanan, setPenjualanBulanan] = useState(null);
+  const [penjualanHarian, setPenjualanHarian] = useState(null);
   const [barChartData, setBarChartData] = useState({
-    labels: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"],
+    labels: [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "11",
+      "12",
+    ],
     datasets: [
       {
         label: "UMKM",
@@ -35,7 +48,7 @@ const Home = () => {
       },
     ],
   });
-  const [doughnutData, setDoughnutData] = useState({ 
+  const [doughnutData, setDoughnutData] = useState({
     labels: ["UMKM", "Rumah Tangga"],
     datasets: [
       {
@@ -52,12 +65,15 @@ const Home = () => {
     const fetchKetersediaanGas = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await fetch(`${import.meta.env.VITE_API_URL}api/current-gas`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}api/current-gas`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         const result = await response.json();
         if (result.status === 200) {
@@ -78,12 +94,15 @@ const Home = () => {
     const fetchPenjualanBulanan = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await fetch(`${import.meta.env.VITE_API_URL}api/monthlysales`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}api/monthlysales`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         const result = await response.json();
         if (result.status === 200) {
@@ -104,12 +123,15 @@ const Home = () => {
     const fetchPenjualanHarian = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await fetch(`${import.meta.env.VITE_API_URL}api/dailysales`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}api/dailysales`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         const result = await response.json();
         if (result.status === 200) {
@@ -125,96 +147,130 @@ const Home = () => {
     fetchPenjualanHarian();
   }, []);
 
-  // Fetch bar chart data 
   useEffect(() => {
     const fetchBarChartData = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/buyertypesale`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-  
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}api/buyertypesale`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         const result = response.data;
-        if (result.status === 200) {
-          // Initialize arrays for UMKM and Rumah Tangga with zeroes for each month
+        console.log("API Response:", result);
+
+        if (result.status === 200 && Array.isArray(result.data)) {
+          const monthIndex = {
+            January: 0,
+            February: 1,
+            March: 2,
+            April: 3,
+            May: 4,
+            June: 5,
+            July: 6,
+            August: 7,
+            September: 8,
+            October: 9,
+            November: 10,
+            December: 11,
+          };
+
+          // Array untuk menampung data penjualan UMKM dan Rumah Tangga per bulan
           const umkmData = Array(12).fill(0);
           const rumahTanggaData = Array(12).fill(0);
-  
-          // Get the current month (0 = January, 10 = October, etc.)
-          const currentMonthIndex = new Date().getMonth();
-  
-          // Parse quantities and update the current month data
-          const umkmQuantity = parseInt(result.data[0].total_quantity) || 0;
-          const rumahTanggaQuantity = parseInt(result.data[1].total_quantity) || 0;
-  
-          // Set the values only for the current month
-          umkmData[currentMonthIndex] = umkmQuantity;
-          rumahTanggaData[currentMonthIndex] = rumahTanggaQuantity;
-  
-          // Update the bar chart data state with the new values
+
+          // Iterasi untuk setiap bulan dan mengisi data pada array yang sesuai
+          result.data.forEach((item) => {
+            const monthIndexValue = monthIndex[item.month];
+            if (monthIndexValue !== undefined) {
+              // Mengisi data penjualan UMKM dan Rumah Tangga
+              umkmData[monthIndexValue] = item.sales[0].totalQuantity;
+              rumahTanggaData[monthIndexValue] = item.sales[1].totalQuantity;
+            }
+          });
+
           setBarChartData((prevData) => ({
             ...prevData,
             datasets: [
               {
                 ...prevData.datasets[0],
+                label: "UMKM",
                 data: umkmData,
               },
               {
                 ...prevData.datasets[1],
+                label: "Rumah Tangga",
                 data: rumahTanggaData,
               },
             ],
           }));
+        } else {
+          console.error("API response error or invalid data format:", result);
         }
       } catch (error) {
-        console.error("Error fetching buyer type sales data:", error);
+        console.error("Error fetching monthly sales data:", error);
       }
     };
-  
+
     fetchBarChartData();
   }, []);
 
-  // Fetch pie chart data
   useEffect(() => {
-    const doughnutChartData = async () => {
+    const fetchDonutChartData = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/buyertypesale`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}api/buyertypesale`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         const result = response.data;
-        if (result.status === 200) {
-          // Assuming the API response contains data structured for UMKM and Rumah Tangga
-          const umkmQuantity = parseInt(result.data[0].total_quantity) || 0; // First entry for UMKM
-          const rumahTanggaQuantity = parseInt(result.data[1].total_quantity) || 0; // Second entry for Rumah Tangga
+        console.log("API Response for Donut Chart:", result);
 
-          // Calculate total
-          const total = umkmQuantity + rumahTanggaQuantity;
+        if (result.status === 200 && Array.isArray(result.data)) {
+          const monthlySales = result.data.reduce((acc, item) => {
+            item.sales.forEach((sale, index) => {
+              acc[index] = acc[index] || 0;
+              acc[index] += sale.totalQuantity;
+            });
+            return acc;
+          }, []);
 
-          // Update doughnut chart data based on fetched quantities
+          // Asumsi data yang akan ditampilkan di chart donut
+          const labels = ["UMKM", "Rumah Tangga"];
+          const dataset = monthlySales;
+
           setDoughnutData({
-            ...doughnutData,
-            datasets: [{
-              ...doughnutData.datasets[0],
-              data: total > 0 ? [umkmQuantity, rumahTanggaQuantity] : [0, 0], // Avoid division by zero
-            }],
+            labels: labels,
+            datasets: [
+              {
+                data: dataset,
+                backgroundColor: ["#FF6384", "#36A2EB"],
+                hoverBackgroundColor: ["#FF3A4C", "#2C85C7"],
+              },
+            ],
           });
+        } else {
+          console.error("API response error or invalid data format:", result);
         }
       } catch (error) {
-        console.error("Error fetching pie chart", error);
+        console.error("Error fetching donut chart data:", error);
       }
     };
 
-    doughnutChartData();
+    fetchDonutChartData();
   }, []);
-  
+
   //date
   const today = new Date();
   const formattedDate = today.toLocaleDateString("id-ID", {
@@ -224,12 +280,14 @@ const Home = () => {
     day: "numeric",
   });
 
-
   const doughnutOptions = {
     plugins: {
       datalabels: {
         formatter: (value, context) => {
-          const total = context.chart.data.datasets[0].data.reduce((acc, val) => acc + val, 0);
+          const total = context.chart.data.datasets[0].data.reduce(
+            (acc, val) => acc + val,
+            0
+          );
           const percentage = ((value / total) * 100).toFixed(1);
           return `${percentage}%`;
         },
@@ -255,14 +313,18 @@ const Home = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between p-5">
         <div className="space-y-1">
-          <h1 className="font-semibold text-xl sm:text-2xl">Penjualan Bulan Ini :</h1>
+          <h1 className="font-semibold text-xl sm:text-2xl">
+            Penjualan Bulan Ini :
+          </h1>
           <p className="text-xl sm:text-2xl font-semibold text-[#00AA13]">
             {penjualanBulanan !== null ? `+${penjualanBulanan}` : "0"}
           </p>
         </div>
         <div className="mt-3 sm:mt-0">
           <div className="bg-[#004408] px-5 py-2 rounded-lg text-white">
-            <Typography className="font-semibold text-sm sm:text-base">{formattedDate}</Typography>
+            <Typography className="font-semibold text-sm sm:text-base">
+              {formattedDate}
+            </Typography>
           </div>
         </div>
       </div>
@@ -273,26 +335,39 @@ const Home = () => {
           <div className="w-full sm:w-1/2">
             <div className="bg-white p-3 rounded-lg shadow-md">
               <div className="flex justify-between">
-                <h1 className="text-xl sm:text-2xl font-semibold">Ketersediaan Gas :</h1>
+                <h1 className="text-xl sm:text-2xl font-semibold">
+                  Ketersediaan Gas :
+                </h1>
                 <button onClick={openModalHistory}>
                   <Chip value="history" />
                 </button>
-                <HistoryKetersediaan open={isModalHistoryOpen} handler={closeModalHistory} />
+                <HistoryKetersediaan
+                  open={isModalHistoryOpen}
+                  handler={closeModalHistory}
+                />
               </div>
               <p className="text-2xl sm:text-3xl font-medium">
                 {ketersediaanGas !== null ? ` ${ketersediaanGas} tabung` : "0"}
               </p>
               <div className="flex text-3xl justify-end">
-                <button onClick={openModalKetersediaan} className="text-[#00AA13]">
+                <button
+                  onClick={openModalKetersediaan}
+                  className="text-[#00AA13]"
+                >
                   <MdAddBox />
                 </button>
-                <ModalKetersidaan open={isModalKetersediaanOpen} handler={closeModalKetersediaan} />
+                <ModalKetersidaan
+                  open={isModalKetersediaanOpen}
+                  handler={closeModalKetersediaan}
+                />
               </div>
             </div>
           </div>
           <div className="w-full sm:w-1/2">
             <div className="bg-white p-3 rounded-lg shadow-md h-full">
-              <h1 className="text-xl sm:text-2xl font-semibold">Gas Terjual Harian :</h1>
+              <h1 className="text-xl sm:text-2xl font-semibold">
+                Gas Terjual Harian :
+              </h1>
               <p className="text-2xl sm:text-3xl font-medium">
                 {penjualanHarian !== null ? `${penjualanHarian} tabung` : "0"}
               </p>
@@ -303,7 +378,9 @@ const Home = () => {
         {/* Charts */}
         <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
           <div className="bg-white w-full sm:w-2/3 p-2 rounded-lg shadow-md">
-            <h1 className="text-xl sm:text-2xl font-semibold p-2">Grafik Batang</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold p-2">
+              Grafik Batang
+            </h1>
             <div className="flex-1 h-[80%]">
               <Bar
                 className="h-full"
@@ -323,7 +400,9 @@ const Home = () => {
           </div>
 
           <div className="bg-white w-full sm:w-1/3 p-4 rounded-lg shadow-md">
-            <h1 className="text-xl sm:text-2xl font-semibold mb-4">Grafik Lingkaran</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold mb-4">
+              Grafik Lingkaran
+            </h1>
             <Doughnut data={doughnutData} options={doughnutOptions} />
           </div>
         </div>

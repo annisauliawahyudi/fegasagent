@@ -97,11 +97,7 @@ const DataPembelian = () => {
       alert("Tidak ada data pembelian.");
     }
   };
-<<<<<<< HEAD
-
-=======
   
->>>>>>> ea346dd72fc8ed8e754def70cd6654dcc3aa9229
   const handleDailyExcel = () => fetchExcelFile("dailyexcel", setDailyExcel);
   const handleWeeklyExcel = () => fetchExcelFile("weeklyexcel", setWeeklyExcel);
   const handleMonthlyExcel = () => fetchExcelFile("monthlyexcel", setMonthlyExcel);
@@ -128,11 +124,7 @@ const DataPembelian = () => {
     setWeeklyExcel(null);
     setMonthlyExcel(null);
   }, [dailyExcel, weeklyExcel, monthlyExcel]);
-<<<<<<< HEAD
-
-=======
   
->>>>>>> ea346dd72fc8ed8e754def70cd6654dcc3aa9229
   // Filter data based on query
   useEffect(() => {
     if (dataPembelian && query) {
@@ -228,13 +220,6 @@ const DataPembelian = () => {
         <table className="w-full">
           <thead className="bg-[#004408] text-white">
             <tr>
-<<<<<<< HEAD
-              <th className="w-20 p-3 text-sm font-semibold tracking-wide text-left">No.</th>
-              <th className="p-3 text-sm font-semibold tracking-wide text-left">Nama</th>
-              <th className="p-3 text-sm font-semibold tracking-wide text-left">Status</th>
-              <th className="p-3 text-sm font-semibold tracking-wide text-left">Total Beli</th>
-              <th className="p-3 text-sm font-semibold tracking-wide text-left">Tanggal</th>
-=======
               <th className="w-20 p-3 text-sm font-semibold tracking-wide text-left">
                 No.
               </th>
@@ -253,7 +238,6 @@ const DataPembelian = () => {
               <th className="p-3 text-sm font-semibold tracking-wide text-left">
                 Aksi
               </th>
->>>>>>> ea346dd72fc8ed8e754def70cd6654dcc3aa9229
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -266,12 +250,6 @@ const DataPembelian = () => {
                   <p>{data.customerModel?.nama}</p>
                 </td>
                 <td className="p-3 text-sm text-gray-700">
-<<<<<<< HEAD
-                  <span className="p-1.5 text-xs font-medium uppercase tracking-wider text-gray-800 bg-gray-200 rounded-lg bg-opacity-50">{data.customerModel?.buyer_type?.name || "N/A"}</span>
-                </td>
-                <td className="p-3 text-sm text-gray-700">{data.quantity || 0}</td>
-                <td className="p-3 text-sm text-gray-700">{data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}</td>
-=======
                   <span className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
                     ${data.customerModel?.buyer_type?.name === "UMKM"
                     ? "bg-[#00AA13]"
@@ -299,7 +277,6 @@ const DataPembelian = () => {
                     Print Struk
                   </Button>
                 </td>
->>>>>>> ea346dd72fc8ed8e754def70cd6654dcc3aa9229
               </tr>
             ))}
           </tbody>
@@ -325,13 +302,6 @@ const DataPembelian = () => {
                     <p>{data.customerModel?.nama || "N/A"}</p>
                   </div>
                   <div>
-<<<<<<< HEAD
-                    <span className="p-1.5 text-xs font-medium uppercase tracking-wider text-gray-800 bg-gray-200 rounded-lg bg-opacity-50">{data.customerModel?.buyer_type?.name || "N/A"}</span>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-700">Pembelian: {data.quantity || 0}</p>
-                <p className="text-sm text-gray-700">Tanggal: {data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}</p>
-=======
                   <span className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
                     ${data.customerModel?.buyer_type?.name === "UMKM"
                     ? "bg-[#00AA13]"
@@ -361,7 +331,6 @@ const DataPembelian = () => {
                     Print Struk
                   </Button>
                 </div>
->>>>>>> ea346dd72fc8ed8e754def70cd6654dcc3aa9229
               </div>
             </div>
           ))
