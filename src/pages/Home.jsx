@@ -129,7 +129,7 @@ const Home = () => {
     const fetchBarChartData = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/monthlysales`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/buyertypesale`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -201,32 +201,49 @@ const Home = () => {
             "Content-Type": "application/json",
           },
         });
-
+  
         const result = response.data;
-        if (result.status === 200) {
-          // Assuming the API response contains data structured for UMKM and Rumah Tangga
-          const umkmQuantity = parseInt(result.data[0].total_quantity) || 0; // First entry for UMKM
-          const rumahTanggaQuantity = parseInt(result.data[1].total_quantity) || 0; // Second entry for Rumah Tangga
-
+        if (result.status === 200 && Array.isArray(result.data)) {
+          // Get the current month name
+          const currentMonth = new Date().toLocaleString("default", { month: "long" });
+  
+          // Find data for the current month
+          const currentMonthData = result.data.find((item) => item.month === currentMonth);
+  
+          // Initialize UMKM and Rumah Tangga totals
+          let umkmTotal = 0;
+          let rumahTanggaTotal = 0;
+  
+          if (currentMonthData && Array.isArray(currentMonthData.sales)) {
+            // Extract UMKM and Rumah Tangga quantities if available
+            umkmTotal = parseInt(currentMonthData.sales[0]?.total_quantity || "0", 10);
+            rumahTanggaTotal = parseInt(currentMonthData.sales[1]?.total_quantity || "0", 10);
+          }
+  
           // Calculate total
-          const total = umkmQuantity + rumahTanggaQuantity;
-
-          // Update doughnut chart data based on fetched quantities
-          setDoughnutData({
-            ...doughnutData,
-            datasets: [{
-              ...doughnutData.datasets[0],
-              data: total > 0 ? [umkmQuantity, rumahTanggaQuantity] : [0, 0], // Avoid division by zero
-            }],
-          });
+          const total = umkmTotal + rumahTanggaTotal;
+  
+          // Update doughnut chart data based on fetched totals for the current month
+          setDoughnutData((prevData) => ({
+            ...prevData,
+            datasets: [
+              {
+                ...prevData.datasets[0],
+                data: total > 0 ? [umkmTotal, rumahTanggaTotal] : [0, 0], // Ensure no empty chart
+              },
+            ],
+          }));
+        } else {
+          console.error("Unexpected API response format or empty data:", result);
         }
       } catch (error) {
-        console.error("Error fetching pie chart", error);
+        console.error("Error fetching pie chart data:", error);
       }
     };
-
+  
     doughnutChartData();
   }, []);
+  
   
   //date
   const today = new Date();

@@ -134,7 +134,7 @@ const DataKTP = ({
           {image && (
             <img
               src={image}
-              className="rounded-xl mx-auto md:mx-0"
+              className="rounded-lg mx-auto md:mx-0"
               alt="Uploaded"
               style={{ maxWidth: "70%", height: "auto" }}
             />
@@ -170,23 +170,22 @@ const DataKTP = ({
                 />
               </div>
               <div className="flex flex-col w-full sm:w-[48%]">
-                <p className="text-black">Nama</p>
+                <p className="text-black">Nama <span className="text-red-600">*</span></p>
                 <Input
                   required
                   value={name}
                   size="lg"
-                  label="Nama"
                   onChange={(e) => setName(e.target.value)}
-                  // className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                  // labelProps={{
-                  //   className: "before:content-none after:content-none",
-                  // }}
+                  className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+                  labelProps={{
+                    className: "before:content-none after:content-none",
+                  }}
                 />
               </div>
 
               {/* Row 2 */}
               <div className="flex flex-col w-full sm:w-[48%]">
-                <p className="text-black">Alamat</p>
+                <p className="text-black">Alamat <span className="text-red-600">*</span></p>
                 <Input
                   required
                   value={alamat}
@@ -200,7 +199,7 @@ const DataKTP = ({
                 />
               </div>
               <div className="flex flex-col w-full sm:w-[48%]">
-                <p className="text-black">Status</p>
+                <p className="text-black">Status <span className="text-red-600">*</span></p>
                 <div className="relative">
                   <select
                     value={selectedStatus}
