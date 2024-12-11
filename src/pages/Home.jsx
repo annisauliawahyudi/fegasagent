@@ -125,7 +125,6 @@ const Home = () => {
     fetchPenjualanHarian();
   }, []);
 
-  // Fetch bar chart data 
   useEffect(() => {
     const fetchBarChartData = async () => {
       try {
@@ -138,21 +137,28 @@ const Home = () => {
         });
   
         const result = response.data;
-        if (result.status === 200) {
+        console.log("API Response:", result);
+  
+        if (result.status === 200 && Array.isArray(result.data)) {
           // Initialize arrays for UMKM and Rumah Tangga with zeroes for each month
           const umkmData = Array(12).fill(0);
           const rumahTanggaData = Array(12).fill(0);
   
-          // Get the current month (0 = January, 10 = October, etc.)
-          const currentMonthIndex = new Date().getMonth();
+          // Iterate through the data and populate the arrays
+          result.data.forEach((item, index) => {
+            if (Array.isArray(item.sales)) {
+              // Assuming sales[0] is UMKM and sales[1] is Rumah Tangga
+              const umkmQuantity = parseInt(item.sales[0]?.total_quantity || "0", 10);
+              const rumahTanggaQuantity = parseInt(item.sales[1]?.total_quantity || "0", 10);
   
-          // Parse quantities and update the current month data
-          const umkmQuantity = parseInt(result.data[0].total_quantity) || 0;
-          const rumahTanggaQuantity = parseInt(result.data[1].total_quantity) || 0;
-  
-          // Set the values only for the current month
-          umkmData[currentMonthIndex] = umkmQuantity;
-          rumahTanggaData[currentMonthIndex] = rumahTanggaQuantity;
+              umkmData[index] = umkmQuantity;
+              rumahTanggaData[index] = rumahTanggaQuantity;
+            } else {
+              // If sales is null, keep data as 0
+              umkmData[index] = 0;
+              rumahTanggaData[index] = 0;
+            }
+          });
   
           // Update the bar chart data state with the new values
           setBarChartData((prevData) => ({
@@ -160,22 +166,29 @@ const Home = () => {
             datasets: [
               {
                 ...prevData.datasets[0],
+                label: "UMKM",
                 data: umkmData,
               },
               {
                 ...prevData.datasets[1],
+                label: "Rumah Tangga",
                 data: rumahTanggaData,
               },
             ],
           }));
+        } else {
+          console.error("Unexpected API response format or empty data:", result);
         }
       } catch (error) {
-        console.error("Error fetching buyer type sales data:", error);
+        console.error("Error fetching monthly sales data:", error);
       }
     };
   
     fetchBarChartData();
   }, []);
+  
+  
+  
 
   // Fetch pie chart data
   useEffect(() => {
@@ -188,32 +201,49 @@ const Home = () => {
             "Content-Type": "application/json",
           },
         });
-
+  
         const result = response.data;
-        if (result.status === 200) {
-          // Assuming the API response contains data structured for UMKM and Rumah Tangga
-          const umkmQuantity = parseInt(result.data[0].total_quantity) || 0; // First entry for UMKM
-          const rumahTanggaQuantity = parseInt(result.data[1].total_quantity) || 0; // Second entry for Rumah Tangga
-
+        if (result.status === 200 && Array.isArray(result.data)) {
+          // Get the current month name
+          const currentMonth = new Date().toLocaleString("default", { month: "long" });
+  
+          // Find data for the current month
+          const currentMonthData = result.data.find((item) => item.month === currentMonth);
+  
+          // Initialize UMKM and Rumah Tangga totals
+          let umkmTotal = 0;
+          let rumahTanggaTotal = 0;
+  
+          if (currentMonthData && Array.isArray(currentMonthData.sales)) {
+            // Extract UMKM and Rumah Tangga quantities if available
+            umkmTotal = parseInt(currentMonthData.sales[0]?.total_quantity || "0", 10);
+            rumahTanggaTotal = parseInt(currentMonthData.sales[1]?.total_quantity || "0", 10);
+          }
+  
           // Calculate total
-          const total = umkmQuantity + rumahTanggaQuantity;
-
-          // Update doughnut chart data based on fetched quantities
-          setDoughnutData({
-            ...doughnutData,
-            datasets: [{
-              ...doughnutData.datasets[0],
-              data: total > 0 ? [umkmQuantity, rumahTanggaQuantity] : [0, 0], // Avoid division by zero
-            }],
-          });
+          const total = umkmTotal + rumahTanggaTotal;
+  
+          // Update doughnut chart data based on fetched totals for the current month
+          setDoughnutData((prevData) => ({
+            ...prevData,
+            datasets: [
+              {
+                ...prevData.datasets[0],
+                data: total > 0 ? [umkmTotal, rumahTanggaTotal] : [0, 0], // Ensure no empty chart
+              },
+            ],
+          }));
+        } else {
+          console.error("Unexpected API response format or empty data:", result);
         }
       } catch (error) {
-        console.error("Error fetching pie chart", error);
+        console.error("Error fetching pie chart data:", error);
       }
     };
-
+  
     doughnutChartData();
   }, []);
+  
   
   //date
   const today = new Date();

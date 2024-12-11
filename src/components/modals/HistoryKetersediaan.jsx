@@ -57,7 +57,7 @@ const HistoryKetersediaan = ({ open, handler }) => {
   size="xs"
   open={open}
   handler={handler}
-  className="bg-transparent shadow-none p-2 lg:p-0"
+  className="bg-transparent shadow-none lg:p-0"
 >
   <Card className="mx-auto w-full max-w-[40rem]">
     <CardBody className="h-[60vh] overflow-y-auto">

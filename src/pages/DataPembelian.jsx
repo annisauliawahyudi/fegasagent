@@ -223,7 +223,9 @@ const DataPembelian = () => {
             {currentItems.map((data, index) => (
               <tr key={data.id} className="bg-white">
                 <td className="p-3 text-sm text-gray-700">
-                  <p className="font-bold">{index + 1}</p>
+                  <p className="font-bold">
+                  {index + 1 + (currentPage - 1) * itemsPerPage}
+                  </p>
                 </td>
                 <td className="p-3 text-sm text-gray-700">
                   <p>{data.customerModel?.nama}</p>
