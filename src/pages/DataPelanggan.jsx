@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Paginate from "../components/Pagination";
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus } from "react-icons/fa";
 import { FiTrash2 } from "react-icons/fi";
 import { LuPencil } from "react-icons/lu";
 import { SiMicrosoftexcel } from "react-icons/si";
@@ -11,6 +11,7 @@ import Swal from "sweetalert2";
 import UpdatePelanggan from "../components/modals/UpdatePelanggan";
 import DetailPelanggan from "../components/modals/DetailPelanggan";
 import CreatePelanggan from "../components/modals/CreatePelanggan";
+import GambarUMKM from "../components/modals/GambarUMKM";
 // import CreateGas from "../components/modals/CreateGas";
 // import CreateGs from "../components/modals/Creategs";
 import * as XLSX from "xlsx";
@@ -33,11 +34,27 @@ const DataPembelian = () => {
   });
   const [loadingM, setLoadingM] = useState(false);
 
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  // const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
-
   const [isModalCOpen, setIsModalCOpen] = useState(false);
+  const [isUMKMModalOpen, setIsUMKMModalOpen] = useState(false);
 
+ const openUMKMModal = (customerId) => {
+  // e.preventDefault(); // Mencegah perilaku default dari tag <a>
+  setSelectedCustomerId(customerId);
+  setIsUMKMModalOpen(true);
+};
+
+const closeUMKMModal = () => {
+  // console.log("Closing modal...");
+  setIsUMKMModalOpen(false);
+};
+
+//  const handleDetail = (customerId, e) => {
+//     e.preventDefault(); // Mencegah perilaku default dari tag <a>
+//     setSelectedCustomerId(customerId);
+//     setIsDetailModalOpen(true); // Modal akan terbuka hanya ketika ini dipanggil
+//   };
   // const openModalC = ()=> {
   //   setIsModalCOpen(true);
   // }
@@ -60,15 +77,11 @@ const DataPembelian = () => {
     XLSX.writeFile(workbook, "Data_Pelanggan.xlsx");
   };
 
-  const handleDetail = (customerId, e) => {
-    e.preventDefault(); // Mencegah perilaku default dari tag <a>
-    setSelectedCustomerId(customerId);
-    setIsDetailModalOpen(true); // Modal akan terbuka hanya ketika ini dipanggil
-  };
+ 
 
-  const handleDetailModalClose = () => {
-    setIsDetailModalOpen(false); // Modal hanya tertutup ketika ini dipanggil
-  };
+  // const handleDetailModalClose = () => {
+  //   setIsDetailModalOpen(false); // Modal hanya tertutup ketika ini dipanggil
+  // };
 
   const handleEdit = (customer) => {
     setSelectedCustomer(customer);
@@ -299,25 +312,26 @@ const DataPembelian = () => {
                   <td className="p-3 text-sm text-gray-700">{item.nik}</td>
                   <td className="p-3 text-sm text-gray-700">{item.alamat}</td>
                   <td className="p-3 text-sm text-gray-700">
-                    <span className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
-                    ${item.buyer_type.name === "UMKM"
-                    ? "bg-[#00AA13]"
-                    : item.buyer_type.name === "Rumah Tangga"
-                    ? "bg-[#FFBF00]"
-                    : "bg-gray-200"}`}>
-                    {item.buyer_type.name || "N/A"}
+                    <span
+                      className={`p-1.5 text-xs font-medium tracking-wider text-white rounded-lg ${item.buyer_type.name === "UMKM" ? "bg-[#00AA13] cursor-pointer" : item.buyer_type.name === "Rumah Tangga" ? "bg-[#FFBF00]" : "bg-gray-200"}`}
+                      onClick={() => item.buyer_type.name === "UMKM" && openUMKMModal(item.id)} // Pastikan openModal hanya dipanggil jika UMKM
+                    >
+                      {item.buyer_type.name || "N/A"}
                     </span>
+
+                    {isUMKMModalOpen && <GambarUMKM isOpen={isUMKMModalOpen} onClose={closeUMKMModal} customerId={selectedCustomerId}/>}
                   </td>
                   <td className="p-3 text-sm flex gap-2">
-                    <button onClick={openModalGas} className="text-blue-600">
+                    {/* <button onClick={openModalGas} className="text-blue-600">
                       <CreateGas isOpen={isModalGasOpen} onClose={closeModalGas} customer={selectedCustomer}/>
-                    </button>
+                    </button> */}
                     <button onClick={() => handleDelete(item.id)} className="text-red-600">
                       <FiTrash2 />
                     </button>
                     <button onClick={() => handleEdit(item)} className="text-yellow-600">
                       <LuPencil />
                     </button>
+                   
                   </td>
                 </tr>
               ))
@@ -327,11 +341,7 @@ const DataPembelian = () => {
       </div>
 
       <div className="overflow-auto md:block mt-5 pb-2 hidden">
-        <Paginate
-          currentPage={currentPage}
-          totalPages={totalPages}
-          paginate={paginate}
-        />
+        <Paginate currentPage={currentPage} totalPages={totalPages} paginate={paginate} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden mt-4">
@@ -346,20 +356,20 @@ const DataPembelian = () => {
             <div key={item.id} className="bg-white space-y-3 p-4 rounded-lg shadow">
               <div className="flex items-center space-x-2 text-sm">
                 <td className="text-sm text-gray-700">
-                  <button onClick={(e) => handleDetail(item.id, e)} className="font-bold hover:underline">
+                  <button className="font-bold hover:underline">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </button>
                 </td>
                 <div className="text-gray-500">{item.nik}</div>
                 <div>
-                  <span className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
-                    ${item.buyer_type.name === "UMKM"
-                    ? "bg-[#00AA13]"
-                    : item.buyer_type.name === "Rumah Tangga"
-                    ? "bg-[#FFBF00]"
-                    : "bg-gray-200"}`}>
-                    {item.buyer_type.name || "N/A"}
+                  <span
+                      className={`p-1.5 text-xs font-medium tracking-wider text-white rounded-lg ${item.buyer_type.name === "UMKM" ? "bg-[#00AA13] cursor-pointer" : item.buyer_type.name === "Rumah Tangga" ? "bg-[#FFBF00]" : "bg-gray-200"}`}
+                      onClick={() => item.buyer_type.name === "UMKM" && openUMKMModal(item.id)} // Pastikan openModal hanya dipanggil jika UMKM
+                    >
+                      {item.buyer_type.name || "N/A"}
                     </span>
+
+                    {isUMKMModalOpen && <GambarUMKM isOpen={isUMKMModalOpen} onClose={closeUMKMModal} customerId={selectedCustomerId}/>}
                 </div>
               </div>
               <div className="ml-5 text-sm text-gray-700">{item.alamat}</div>
@@ -386,7 +396,7 @@ const DataPembelian = () => {
       </div>
 
       {/* // Modal Detail */}
-      <DetailPelanggan isOpen={isDetailModalOpen} onClose={handleDetailModalClose} customerId={selectedCustomerId} />
+      {/* <DetailPelanggan isOpen={isDetailModalOpen} onClose={handleDetailModalClose} customerId={selectedCustomerId} /> */}
 
       <UpdatePelanggan isOpen={isModalOpen} onClose={handleModalClose} customer={selectedCustomer} formData={formData} setFormData={setFormData} loading={loadingM} handleSubmit={handleSubmit} />
     </div>
