@@ -138,6 +138,7 @@ const Home = () => {
   
         const result = response.data;
         console.log("API Response:", result);
+        
   
         if (result.status === 200 && Array.isArray(result.data)) {
           // Initialize arrays for UMKM and Rumah Tangga with zeroes for each month

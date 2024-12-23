@@ -257,8 +257,8 @@ const closeUMKMModal = () => {
             {/* <button onClick={openModalC} className='px-3 py-3 bg-[#00AA13] text-gray rounded-full'>
               <FaPlus className='text-white' />
              
-            </button> */}
-            <CreatePelanggan className="bg-[#00AA13]" open={isModalCOpen} handler={closeModalC} />
+            </button>
+            <CreatePelanggan className="bg-[#00AA13]" open={isModalCOpen} handler={closeModalC} /> */}
           </div>
         </div>
       </div>
@@ -318,7 +318,7 @@ const closeUMKMModal = () => {
                     >
                       {item.buyer_type.name || "N/A"}
                     </span>
-
+                    
                     {isUMKMModalOpen && <GambarUMKM isOpen={isUMKMModalOpen} onClose={closeUMKMModal} customerId={selectedCustomerId}/>}
                   </td>
                   <td className="p-3 text-sm flex gap-2">
