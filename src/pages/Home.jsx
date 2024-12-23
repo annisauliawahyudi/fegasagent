@@ -125,43 +125,40 @@ const Home = () => {
     fetchPenjualanHarian();
   }, []);
 
+  // Fetch data for bar chart
   useEffect(() => {
     const fetchBarChartData = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/buyertypesale`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-  
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}api/buyertypesale`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         const result = response.data;
         console.log("API Response:", result);
-        
-  
+
         if (result.status === 200 && Array.isArray(result.data)) {
-          // Initialize arrays for UMKM and Rumah Tangga with zeroes for each month
           const umkmData = Array(12).fill(0);
           const rumahTanggaData = Array(12).fill(0);
-  
-          // Iterate through the data and populate the arrays
+
           result.data.forEach((item, index) => {
             if (Array.isArray(item.sales)) {
-              // Assuming sales[0] is UMKM and sales[1] is Rumah Tangga
-              const umkmQuantity = parseInt(item.sales[0]?.total_quantity || "0", 10);
-              const rumahTanggaQuantity = parseInt(item.sales[1]?.total_quantity || "0", 10);
-  
+              // Extract totalQuantity for each type
+              const umkmQuantity = item.sales[0]?.totalQuantity || 0;
+              const rumahTanggaQuantity = item.sales[1]?.totalQuantity || 0;
+
+              // Assign data to respective months
               umkmData[index] = umkmQuantity;
               rumahTanggaData[index] = rumahTanggaQuantity;
-            } else {
-              // If sales is null, keep data as 0
-              umkmData[index] = 0;
-              rumahTanggaData[index] = 0;
             }
           });
-  
-          // Update the bar chart data state with the new values
+
           setBarChartData((prevData) => ({
             ...prevData,
             datasets: [
@@ -184,53 +181,47 @@ const Home = () => {
         console.error("Error fetching monthly sales data:", error);
       }
     };
-  
+
     fetchBarChartData();
   }, []);
   
-  
-  
-
-  // Fetch pie chart data
+  // Fetch data for doughnut chart
   useEffect(() => {
-    const doughnutChartData = async () => {
+    const fetchDoughnutChartData = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/buyertypesale`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-  
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}api/buyertypesale`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         const result = response.data;
         if (result.status === 200 && Array.isArray(result.data)) {
-          // Get the current month name
           const currentMonth = new Date().toLocaleString("default", { month: "long" });
-  
-          // Find data for the current month
+
+          // Find the data for the current month
           const currentMonthData = result.data.find((item) => item.month === currentMonth);
-  
-          // Initialize UMKM and Rumah Tangga totals
+
           let umkmTotal = 0;
           let rumahTanggaTotal = 0;
-  
+
           if (currentMonthData && Array.isArray(currentMonthData.sales)) {
-            // Extract UMKM and Rumah Tangga quantities if available
-            umkmTotal = parseInt(currentMonthData.sales[0]?.total_quantity || "0", 10);
-            rumahTanggaTotal = parseInt(currentMonthData.sales[1]?.total_quantity || "0", 10);
+            umkmTotal = currentMonthData.sales[0]?.totalQuantity || 0;
+            rumahTanggaTotal = currentMonthData.sales[1]?.totalQuantity || 0;
           }
-  
-          // Calculate total
-          const total = umkmTotal + rumahTanggaTotal;
-  
-          // Update doughnut chart data based on fetched totals for the current month
+
+          // Update doughnut chart data
           setDoughnutData((prevData) => ({
             ...prevData,
             datasets: [
               {
                 ...prevData.datasets[0],
-                data: total > 0 ? [umkmTotal, rumahTanggaTotal] : [0, 0], // Ensure no empty chart
+                data: [umkmTotal, rumahTanggaTotal],
               },
             ],
           }));
@@ -241,26 +232,18 @@ const Home = () => {
         console.error("Error fetching pie chart data:", error);
       }
     };
-  
-    doughnutChartData();
-  }, []);
-  
-  
-  //date
-  const today = new Date();
-  const formattedDate = today.toLocaleDateString("id-ID", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 
+    fetchDoughnutChartData();
+  }, []);
 
   const doughnutOptions = {
     plugins: {
       datalabels: {
         formatter: (value, context) => {
-          const total = context.chart.data.datasets[0].data.reduce((acc, val) => acc + val, 0);
+          const total = context.chart.data.datasets[0].data.reduce(
+            (acc, val) => acc + val,
+            0
+          );
           const percentage = ((value / total) * 100).toFixed(1);
           return `${percentage}%`;
         },
@@ -272,6 +255,15 @@ const Home = () => {
       },
     },
   };
+  
+  //date
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString("id-ID", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   const [isModalKetersediaanOpen, setIsModalKetersediaanOpen] = useState(false);
   const openModalKetersediaan = () => setIsModalKetersediaanOpen(true);
