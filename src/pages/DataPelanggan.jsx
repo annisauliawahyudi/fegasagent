@@ -257,8 +257,8 @@ const closeUMKMModal = () => {
             {/* <button onClick={openModalC} className='px-3 py-3 bg-[#00AA13] text-gray rounded-full'>
               <FaPlus className='text-white' />
              
-            </button> */}
-            <CreatePelanggan className="bg-[#00AA13]" open={isModalCOpen} handler={closeModalC} />
+            </button>
+            <CreatePelanggan className="bg-[#00AA13]" open={isModalCOpen} handler={closeModalC} /> */}
           </div>
         </div>
       </div>
@@ -313,12 +313,12 @@ const closeUMKMModal = () => {
                   <td className="p-3 text-sm text-gray-700">{item.alamat}</td>
                   <td className="p-3 text-sm text-gray-700">
                     <span
-                      className={`p-1.5 text-xs font-medium tracking-wider text-white rounded-lg ${item.buyer_type.name === "UMKM" ? "bg-[#00AA13] cursor-pointer" : item.buyer_type.name === "Rumah Tangga" ? "bg-[#FFBF00]" : "bg-gray-200"}`}
+                      className={`p-1.5 text-xs font-medium tracking-wider text-white rounded-lg ${item.buyer_type.name === "Rumah Tangga" ? "bg-[#00AA13] cursor-pointer" : item.buyer_type.name === "UMKM" ? "bg-[#FFBF00]" : "bg-gray-200"}`}
                       onClick={() => item.buyer_type.name === "UMKM" && openUMKMModal(item.id)} // Pastikan openModal hanya dipanggil jika UMKM
                     >
                       {item.buyer_type.name || "N/A"}
                     </span>
-
+                    
                     {isUMKMModalOpen && <GambarUMKM isOpen={isUMKMModalOpen} onClose={closeUMKMModal} customerId={selectedCustomerId}/>}
                   </td>
                   <td className="p-3 text-sm flex gap-2">
