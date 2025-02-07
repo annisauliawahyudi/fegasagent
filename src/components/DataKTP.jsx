@@ -76,14 +76,14 @@ const DataKTP = ({
       formData.append("nama", name);
       formData.append("alamat", alamat);
       
-      // Temukan ID buyer_type berdasarkan nama yang dipilih
-      const buyerType = buyerTypes.find(type => type.name === selectedStatus);
-      if (buyerType) {
-        formData.append("buyer_type_id", buyerType.id); // Kirim ID, bukan nama
-      } else {
-        setError("Tipe pembeli tidak valid.");
-        return;
-      }
+        // Temukan ID buyer_type berdasarkan nama yang dipilih
+        const buyerType = buyerTypes.find(type => type.name === selectedStatus);
+        if (buyerType) {
+          formData.append("buyer_type_id", buyerType.id); // Kirim ID, bukan nama
+        } else {
+          setError("Tipe pembeli tidak valid.");
+          return;
+        }
       
       if (gambar) formData.append("gambar", gambar); // Hanya tambahkan jika ada file gambar
   
@@ -151,10 +151,11 @@ const DataKTP = ({
                   value={nik}
                   size="lg"
                   placeholder="NIK"
+                  type="number"
                   onChange={(e) => {
                     const value = e.target.value;
                     // Validasi agar hanya menerima angka dan panjang maksimal 16
-                    if (/^\d*$/.test(value) && value.length <= 16) {
+                    if (value.length <= 16) {
                       setNik(value);
                     }
                   }}

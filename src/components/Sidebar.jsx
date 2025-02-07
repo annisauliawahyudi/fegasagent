@@ -30,7 +30,7 @@ const Sidebar = () => {
       <div>
         {/* Logo */}
         <div className="mb-8">
-          <img src="/logo.svg" alt="logo" className="w-12 hidden md:flex" />
+          <img src="/GasAgent.svg" alt="logo" className="w-12 hidden md:flex" />
         </div>
 
         {/* Navigation Links */}

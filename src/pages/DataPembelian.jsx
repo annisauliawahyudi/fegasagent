@@ -20,6 +20,8 @@ const DataPembelian = () => {
   const [dailyExcel, setDailyExcel] = useState(null);
   const [weeklyExcel, setWeeklyExcel] = useState(null);
   const [monthlyExcel, setMonthlyExcel] = useState(null);
+  const [error, setError] = useState(null); // State to track errors
+
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -50,10 +52,10 @@ const DataPembelian = () => {
           setDataPembelian(result.data);
           setFilteredData(result.data);
         } else {
-          console.error("Error fetching data pembelian:", result.message);
+          setError(new Error(result.message || "Failed to fetch data."));
         }
       } catch (error) {
-        console.error("Error fetching data pembelian:", error);
+        setError(error);
       } finally {
         setLoading(false);
       }
@@ -83,7 +85,6 @@ const DataPembelian = () => {
       });
 
       if (response.data.size === 0) {
-        // Check if the file is empty
         alert("Tidak ada data pembelian.");
         return;
       }
@@ -92,7 +93,6 @@ const DataPembelian = () => {
       updateState(url);
     } catch (error) {
       console.error(`Error fetching ${endpoint} Excel file:`, error);
-      // Show alert for any error that prevents file download
       alert("Tidak ada data pembelian.");
     }
   };
@@ -101,7 +101,6 @@ const DataPembelian = () => {
   const handleWeeklyExcel = () => fetchExcelFile("weeklyexcel", setWeeklyExcel);
   const handleMonthlyExcel = () => fetchExcelFile("monthlyexcel", setMonthlyExcel);
 
-  // Effect to download the file once it's set
   useEffect(() => {
     const downloadFile = (fileUrl, fileName) => {
       if (fileUrl) {
@@ -118,16 +117,16 @@ const DataPembelian = () => {
     downloadFile(weeklyExcel, "Weekly_Data.xlsx");
     downloadFile(monthlyExcel, "Monthly_Data.xlsx");
 
-    // Reset the state after downloading
     setDailyExcel(null);
     setWeeklyExcel(null);
     setMonthlyExcel(null);
   }, [dailyExcel, weeklyExcel, monthlyExcel]);
 
-  // Filter data based on query
   useEffect(() => {
     if (dataPembelian && query) {
-      const filtered = dataPembelian.filter((item) => item.customerModel?.nama.toLowerCase().includes(query.toLowerCase()));
+      const filtered = dataPembelian.filter((item) =>
+        item.customerModel?.nama.toLowerCase().includes(query.toLowerCase())
+      );
       setFilteredData(filtered);
     } else {
       setFilteredData(dataPembelian);
@@ -157,9 +156,6 @@ const DataPembelian = () => {
       }
     } catch (error) {
       console.error("Error printing PDF:", error);
-      if (error.response) {
-        console.error("Error response:", error.response.data);
-      }
       alert("Gagal mengunduh PDF.");
     }
   };
@@ -203,10 +199,8 @@ const DataPembelian = () => {
         </div>
       </div>
 
-      {/* SearchComponent without searchData and clearSearch */}
       <SearchComponent query={query} setQuery={setQuery} />
 
-      {/* Table for desktop */}
       <div className="hidden md:block overflow-auto rounded-lg shadow mt-4">
         <table className="w-full">
           <thead className="bg-[#004408] text-white">
@@ -220,44 +214,69 @@ const DataPembelian = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {currentItems.map((data, index) => (
-              <tr key={data.id} className="bg-white">
-                <td className="p-3 text-sm text-gray-700">
-                  <p className="font-bold">
-                  {index + 1 + (currentPage - 1) * itemsPerPage}
-                  </p>
-                </td>
-                <td className="p-3 text-sm text-gray-700">
-                  <p>{data.customerModel?.nama}</p>
-                </td>
-                <td className="p-3 text-sm text-gray-700">
-                  <span
-                    className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
-                    ${data.customerModel?.buyer_type?.name === "UMKM" ? "bg-[#00AA13]" : data.customerModel?.buyer_type?.name === "Rumah Tangga" ? "bg-[#FFBF00]" : "bg-gray-200"}`}
-                  >
-                    {data.customerModel?.buyer_type?.name || "N/A"}
-                  </span>
-                </td>
-                <td className="p-3 text-sm text-gray-700">{data.quantity || 0}</td>
-                <td className="p-3 text-sm text-gray-700">{data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}</td>
-                <td className="p-3 text-sm text-gray-700">
-                  <Button onClick={() => handlePrintPDF(data.id)} color="black" size="sm" className="mr-2 text-white capitalize flex gap-1">
-                    <IoMdDownload className="w-4 h-4" />
-                    Print Struk
-                  </Button>
+            {loading ? (
+              <tr>
+                <td colSpan="7" className="py-5 text-center text-gray-500">
+                  Loading...
                 </td>
               </tr>
-            ))}
+            ) : error ? (
+              <tr>
+                <td colSpan="7" className="py-5 text-center text-red-500">
+                  Error fetching data: {error.message}
+                </td>
+              </tr>
+            ) : filteredData.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="py-5 text-center text-gray-500">
+                  No data available
+                </td>
+              </tr>
+            ) : (
+              currentItems.map((data, index) => (
+                <tr key={data.id} className="bg-white">
+                  <td className="p-3 text-sm text-gray-700">
+                    <p className="font-bold">
+                      {index + 1 + (currentPage - 1) * itemsPerPage}
+                    </p>
+                  </td>
+                  <td className="p-3 text-sm text-gray-700">
+                    <p>{data.customerModel?.nama}</p>
+                  </td>
+                  <td className="p-3 text-sm text-gray-700">
+                    <span
+                      className={`p-1.5 text-xs font-medium tracking-wider text-white rounded-lg 
+                      ${data.customerModel?.buyer_type?.name === "UMKM" ? "bg-[#00AA13]" : data.customerModel?.buyer_type?.name === "Rumah Tangga" ? "bg-[#FFBF00]" : "bg-gray-200"}`}
+                    >
+                      {data.customerModel?.buyer_type?.name || "N/A"}
+                    </span>
+                  </td>
+                  <td className="p-3 text-sm text-gray-700">{data.quantity || 0}</td>
+                  <td className="p-3 text-sm text-gray-700">
+                    {data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}
+                  </td>
+                  <td className="p-3 text-sm text-gray-700">
+                    <Button
+                      onClick={() => handlePrintPDF(data.id)}
+                      color="black"
+                      size="sm"
+                      className="mr-2 text-white capitalize flex gap-1"
+                    >
+                      <IoMdDownload className="w-4 h-4" />
+                      Print Struk
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="overflow-auto md:block mt-5 pb-2 hidden">
         <Paginate currentPage={currentPage} totalPages={totalPages} paginate={paginate} />
       </div>
 
-      {/* Card view for mobile */}
       <div className="block md:hidden grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         {filteredData.length === 0 ? (
           <div className="p-3 text-sm text-gray-500 text-center">No data available</div>
@@ -272,20 +291,32 @@ const DataPembelian = () => {
                   </div>
                   <div>
                     <span
-                      className={`p-1.5 text-xs font-medium  tracking-wider text-white rounded-lg 
-                    ${data.customerModel?.buyer_type?.name === "UMKM" ? "bg-[#00AA13]" : data.customerModel?.buyer_type?.name === "Rumah Tangga" ? "bg-[#FFBF00]" : "bg-gray-200"}`}
+                      className={`p-1.5 text-xs font-medium tracking-wider text-white rounded-lg 
+                      ${data.customerModel?.buyer_type?.name === "UMKM" ? "bg-[#00AA13]" : data.customerModel?.buyer_type?.name === "Rumah Tangga" ? "bg-[#FFBF00]" : "bg-gray-200"}`}
                     >
                       {data.customerModel?.buyer_type?.name || "N/A"}
                     </span>
                   </div>
                 </div>
-                <p className="text-sm text-gray-700">Pembelian: {data.quantity || 0}</p>
-                <p className="text-sm text-gray-700">Tanggal: {data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}</p>
-                <div className="mt-1">
-                  <Button onClick={() => handlePrintPDF(data.id)} color="black" size="sm" className="mr-2 text-white capitalize flex gap-1">
-                    <IoMdDownload className="w-4 h-4" />
-                    Print Struk
-                  </Button>
+                <div className="mt-2 space-y-2">
+                  <p>
+                    <strong>Total Pembelian:</strong> {data.quantity || 0}
+                  </p>
+                  <p>
+                    <strong>Tanggal:</strong>{" "}
+                    {data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}
+                  </p>
+                  <div className="text-center mt-4">
+                    <Button
+                      onClick={() => handlePrintPDF(data.id)}
+                      color="black"
+                      size="sm"
+                      className="mr-2 text-white capitalize flex gap-1"
+                    >
+                      <IoMdDownload className="w-4 h-4" />
+                      Print Struk
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
