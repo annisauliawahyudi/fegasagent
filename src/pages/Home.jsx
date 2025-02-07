@@ -24,24 +24,27 @@ const Home = () => {
       {
         label: "UMKM",
         data: Array(12).fill(0), // Initialize with empty data
-        backgroundColor: "#00AA13",
+        backgroundColor: "#FFBF00",
+        // backgroundColor: "#00AA13",
         borderRadius: 3,
       },
       {
         label: "Rumah Tangga",
         data: Array(12).fill(0), // Initialize with empty data
-        backgroundColor: "#FFBF00",
+        backgroundColor: "#00AA13",
         borderRadius: 3,
       },
     ],
   });
   const [doughnutData, setDoughnutData] = useState({ 
-    labels: ["UMKM", "Rumah Tangga"],
+    labels: ["Rumah Tangga", "UMKM"],
+    // labels: ["UMKM", "Rumah Tangga"],
     datasets: [
       {
         label: "Pembelian Gas",
         data: [0, 0], // Initialize with zeros for UMKM and Rumah Tangga
         backgroundColor: ["#00AA13", "#FFBF00"],
+        // backgroundColor: ["#00AA13", "#FFBF00"],
         hoverOffset: 4,
       },
     ],
@@ -130,7 +133,7 @@ const Home = () => {
     const fetchBarChartData = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await axios.get(
+        const response = await fetch(
           `${import.meta.env.VITE_API_URL}api/buyertypesale`,
           {
             headers: {
@@ -140,7 +143,7 @@ const Home = () => {
           }
         );
 
-        const result = response.data;
+        const result = await response.json(); 
         console.log("API Response:", result);
 
         if (result.status === 200 && Array.isArray(result.data)) {
@@ -190,7 +193,7 @@ const Home = () => {
     const fetchDoughnutChartData = async () => {
       try {
         const token = Cookies.get("token");
-        const response = await axios.get(
+        const response = await fetch(
           `${import.meta.env.VITE_API_URL}api/buyertypesale`,
           {
             headers: {
@@ -200,7 +203,7 @@ const Home = () => {
           }
         );
 
-        const result = response.data;
+        const result = await response.json(); 
         if (result.status === 200 && Array.isArray(result.data)) {
           const currentMonth = new Date().toLocaleString("default", { month: "long" });
 

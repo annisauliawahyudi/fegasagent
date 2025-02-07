@@ -246,7 +246,7 @@ const DataPembelian = () => {
                   <td className="p-3 text-sm text-gray-700">
                     <span
                       className={`p-1.5 text-xs font-medium tracking-wider text-white rounded-lg 
-                      ${data.customerModel?.buyer_type?.name === "UMKM" ? "bg-[#00AA13]" : data.customerModel?.buyer_type?.name === "Rumah Tangga" ? "bg-[#FFBF00]" : "bg-gray-200"}`}
+                      ${data.customerModel?.buyer_type?.name === "Rumah Tangga" ? "bg-[#00AA13]" : data.customerModel?.buyer_type?.name === "UMKM" ? "bg-[#FFBF00]" : "bg-gray-200"}`}
                     >
                       {data.customerModel?.buyer_type?.name || "N/A"}
                     </span>
