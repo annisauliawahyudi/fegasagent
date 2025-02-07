@@ -61,7 +61,7 @@ const Login = () => {
   };
   return (
     <div className='flex justify-center items-center min-h-screen px-3 lg:px-0 bg-cover bg-center relative' style={{ backgroundImage: 'url("https://asumsi.co/wp-content/uploads/2024/05/medium_13-04-2018-07-58-14-8145.jpg")' }}>
-    <Card className="w-[30rem] bg-opacity-85 lg:h-[70vh]">
+    <Card className="w-[30rem] bg-opacity-85 lg:h-full">
       <CardHeader className='p-5 text-center bg-[#009911] rounded-lg mx-5'>
         <Typography variant="h4" color="white">
           Sign Up
@@ -86,16 +86,7 @@ const Login = () => {
           </Button>        
         </form>
         <Typography variant="small" className="mt-6 flex justify-center">
-          Don&apos;t have an account?
-          <Typography
-            as="a"
-            href="#signup"
-            variant="small"
-            color="blue-gray"
-            className="ml-1 font-bold"
-          >
-            Sign up
-          </Typography>
+          Copyright &#169;  2024
         </Typography>
       </CardBody>
     </Card>
